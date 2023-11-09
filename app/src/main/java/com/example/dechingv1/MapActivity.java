@@ -2,10 +2,10 @@ package com.example.dechingv1;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -35,6 +35,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        boutonMap=findViewById(R.id.imageButtonMap);
+
         boutonLogo=findViewById(R.id.imageButtonLogo);
         boutonLogo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,7 +47,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 
         SupportMapFragment fragmentMap=(SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.layoutMap);
-        fragmentMap.getMapAsync(this);
+        try {
+            fragmentMap.getMapAsync(this);
+        }catch(Exception exception){
+            Log.d("exception",exception.getMessage());
+        }
 
     }
 
@@ -53,5 +59,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(@NonNull GoogleMap googleMap) {
         LatLng bayonne = new LatLng(43.4833,-1.4833);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(bayonne));
+        Log.d("Activity","c'est l'activité qui affiche la map");
     }
 }
