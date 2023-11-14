@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DechingV1</string>
+    <string name="nom_app">Déching</string>
+    <string name="MAPS_API_KEY">AIzaSyBXXc6qaSWh7PQE9pXkLeVfQv8mCJaXTnc</string>
+</resources>
