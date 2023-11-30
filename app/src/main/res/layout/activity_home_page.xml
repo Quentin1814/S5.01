@@ -1,11 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".HomePageActivity">
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <ImageButton
+            android:id="@+id/imageButtonLogo"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_weight="0"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@android:drawable/btn_star" />
+
+        <TextView
+            android:id="@+id/textViewAppName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/deching"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/imageButtonChat"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@drawable/baseline_chat_vide_24dp" />
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/layoutMap"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,71 +64,48 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/imageButtonLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@android:drawable/btn_star" />
-
-        <TextView
-            android:id="@+id/textViewAppName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutMap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/textViewHomePage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="HomePage" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
-        <ImageButton
             android:id="@+id/imageButtonHome"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@android:drawable/btn_star" />
+            android:background="@color/white"
+            android:src="@drawable/baseline_home_black_24dp"
+            android:contentDescription="@string/todo"/>
 
         <ImageButton
             android:id="@+id/imageButtonMap"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@android:drawable/btn_star" />
+            android:background="@color/white"
+            android:src="@drawable/baseline_map_24dp"
+            android:contentDescription="@string/todo"/>
 
         <ImageButton
             android:id="@+id/imageButtonAddPost"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@android:drawable/btn_star" />
+            android:background="@color/white"
+            android:src="@drawable/baseline_add_post_24dp"
+            android:contentDescription="@string/todo"/>
 
         <ImageButton
             android:id="@+id/imageButtonEvent"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@android:drawable/btn_star" />
+            android:background="@color/white"
+            android:src="@drawable/baseline_event_black_24dp"
+            android:contentDescription="@string/todo"/>
 
         <ImageButton
             android:id="@+id/imageButtonProfile"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@android:drawable/btn_star" />
+            android:background="@color/white"
+            android:src="@drawable/baseline_perm_identity_black_24dp"
+            android:contentDescription="@string/todo"/>
     </LinearLayout>
 </LinearLayout>

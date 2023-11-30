@@ -2,4 +2,7 @@
     <string name="app_name">DechingV1</string>
     <string name="nom_app">Déching</string>
     <string name="MAPS_API_KEY">AIzaSyBXXc6qaSWh7PQE9pXkLeVfQv8mCJaXTnc</string>
+    <string name="todo">TODO</string>
+    <string name="deching">Deching</string>
+    <string name="logo_de_l_application">Logo de l\'application</string>
 </resources>
