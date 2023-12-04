@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,14 +44,14 @@
             android:layout_weight="0"
             android:background="@color/white"
             android:contentDescription="@string/todo"
-            android:src="@drawable/baseline_chat_vide_24dp" />
+            android:src="@drawable/icons8_bulle_vide___" />
     </LinearLayout>
 
 
     <FrameLayout
         android:id="@+id/layoutMap"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1">
 
     </FrameLayout>
@@ -69,8 +67,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:src="@drawable/baseline_home_black_24dp"
-            android:contentDescription="@string/todo"/>
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_accueil_rempli___" />
 
         <ImageButton
             android:id="@+id/imageButtonMap"
@@ -78,8 +76,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:src="@drawable/baseline_map_24dp"
-            android:contentDescription="@string/todo"/>
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_map_vide___" />
 
         <ImageButton
             android:id="@+id/imageButtonAddPost"
@@ -87,8 +85,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:src="@drawable/baseline_add_post_24dp"
-            android:contentDescription="@string/todo"/>
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_add_new_vide___" />
 
         <ImageButton
             android:id="@+id/imageButtonEvent"
@@ -96,8 +94,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:src="@drawable/baseline_event_black_24dp"
-            android:contentDescription="@string/todo"/>
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_month_vide___" />
 
         <ImageButton
             android:id="@+id/imageButtonProfile"
@@ -105,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:src="@drawable/baseline_perm_identity_black_24dp"
-            android:contentDescription="@string/todo"/>
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_account_vide___" />
     </LinearLayout>
 </LinearLayout>
