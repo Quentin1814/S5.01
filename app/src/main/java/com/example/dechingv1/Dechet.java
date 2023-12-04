@@ -13,4 +13,3 @@ public class Dechet {
         this.description = description;
     }
 }
-

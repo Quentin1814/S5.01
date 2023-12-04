@@ -8,8 +8,11 @@ import androidx.compose.material.icons.Icons;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -77,6 +80,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(@NonNull LatLng latLng) {
                 Marker newDechet = googleMap.addMarker(new MarkerOptions().position(latLng));
+                afficherToast("Déchet ajouté avec succès", R.color.green);
             }
         });
         LatLng bayonne = new LatLng(43.4833, -1.4833);
@@ -113,9 +117,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if (dechetSelectionne != null) {
                    // Afficher les détails du déchet
                     afficherDetailsDechet(dechetSelectionne);
-                    // Supprimer le déchet sélectionné
-                    supprimerDechet(dechetSelectionne);
-                    Toast.makeText(MapActivity.this, "Déchet supprimé", Toast.LENGTH_SHORT).show();
                 }
 
                 return true;
@@ -145,16 +146,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("MapActivity", "afficherMarqueursSurCarte appelée");
         if (googleMap != null) {
             Log.d("MapActivity", "googleMap non nul, effacement des marqueurs");
-        googleMap.clear(); // Efface les marqueurs existants
+            googleMap.clear(); // Efface les marqueurs existants
 
-        // Ajouter des marqueurs pour chaque déchet dans la liste mise à jour
-        for (Dechet dechet : listeDechets) {
-            LatLng position = new LatLng(dechet.latitude, dechet.longitude);
-            googleMap.addMarker(new MarkerOptions().position(position).title(dechet.description));
-        }
+            // Ajouter des marqueurs pour chaque déchet dans la liste mise à jour
+            for (Dechet dechet : listeDechets) {
+                LatLng position = new LatLng(dechet.latitude, dechet.longitude);
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.description));
+            }
         }
     }
-    // affichage des detaille du dechet selectionne
+    // affichage des details du dechet selectionne
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
@@ -165,13 +166,33 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .setPositiveButton("Supprimer", (dialog, which) -> {
                     // Appeler la méthode pour supprimer le déchet après confirmation
                     supprimerDechet(dechet);
-                    Toast.makeText(MapActivity.this, "Déchet supprimé", Toast.LENGTH_SHORT).show();
+                    afficherToast("Déchet supprimé avec succès", R.color.red);
                 })
                 .setNegativeButton("Annuler", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
+    private void afficherToast(String texteNotification, int couleurBackground) {
+        // Créer un layout personnalisé pour le Toast
+        LinearLayout toastLayout = new LinearLayout(this);
+        toastLayout.setBackgroundResource(couleurBackground);
+        toastLayout.setOrientation(LinearLayout.HORIZONTAL);
+        toastLayout.setGravity(Gravity.CENTER);
 
+        // Créer un TextView pour le texte du Toast
+        TextView textView = new TextView(this);
+        textView.setText(texteNotification);
+        textView.setTextColor(getResources().getColor(android.R.color.white)); // Choisir une couleur de texte
+        textView.setPadding(16, 16, 16, 16);
 
+        // Ajouter le TextView au layout
+        toastLayout.addView(textView);
+
+        // Créer le Toast
+        Toast toast = new Toast(this);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(toastLayout);
+        toast.show();
+    }
 
 }
