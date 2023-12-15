@@ -35,8 +35,13 @@ import java.util.List;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageButton boutonLogo, boutonHome, boutonMap, boutonAddPost, boutonEvent, boutonProfile;
-    //creation d'un dechet instantane pour la suppression d'un dechet reference
 
+    //ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
+    private double lastClickedLatitude;
+    private double lastClickedLongitude;
+    // Ajoutez une variable pour suivre l'état actuel quand on clic sur le button "Pointer" du popup
+    private boolean modePointer = false;
+    //creation d'un dechet instantane pour la suppression d'un dechet reference
     private Button boutonSignaler;
 
     private List<Dechet> listeDechets = new ArrayList<>();
@@ -82,7 +87,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 afficherPopup();
-                afficherToast("Déchet signalé avec succès", R.color.green);
             }
         });
 
@@ -96,8 +100,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull LatLng latLng) {
+
                 Marker newDechet = googleMap.addMarker(new MarkerOptions().position(latLng));
-                afficherToast("Déchet ajouté avec succès", R.color.green);
+
+                if (modePointer) {
+                    // Ajoutez un marqueur à l'emplacement cliqué
+                    googleMap.addMarker(new MarkerOptions().position(latLng));
+                    // Mettre à jour les variables globales avec les dernières coordonnées
+                    lastClickedLatitude = latLng.latitude;
+                    lastClickedLongitude = latLng.longitude;
+                    // Ajoutez les informations que vous souhaitez récupérer en tant que tag du marqueur
+                    newDechet.setTag(new Dechet("ID", latLng.latitude, latLng.longitude, "Description"));
+                    afficherToast("Marqueur ajouté avec succès", R.color.green);
+
+                    // Désactivez le mode "Pointer" et réaffichez le popup
+                    modePointer = false;
+                    afficherPopup();
+                }
+
+
             }
         });
         LatLng bayonne = new LatLng(43.4833, -1.4833);
@@ -129,6 +150,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public boolean onMarkerClick(Marker marker) {
                 // Récupérer le déchet associé au marqueur
                 Dechet dechetSelectionne = trouverDechetParDescription(marker.getTitle());
+                // Récupérez les informations du marqueur à partir de la balise
+                Dechet markerInfo = (Dechet) marker.getTag();
+
+                // Vérifiez si la balise contient des informations
+                if (markerInfo != null) {
+                    // Utilisez les informations du marqueur comme nécessaire
+                    Log.d("Marker Clicked", "ID: " + markerInfo.id + ", Latitude: " + markerInfo.latitude +
+                            ", Longitude: " + markerInfo.longitude + ", Description: " + markerInfo.description);
+                }
 
                 // Afficher une boîte de dialogue ou exécuter l'action appropriée
                 if (dechetSelectionne != null) {
@@ -192,7 +222,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private List<Button> boutonsTaille = new ArrayList<>();
     private List<Button> boutonsDetails = new ArrayList<>();
     private List<Button> boutonsDetails2 = new ArrayList<>();
-
+    private AlertDialog alertDialog;
     private void afficherPopup() {
         // Créer le constructeur de l'AlertDialog avec le contexte actuel
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -222,7 +252,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Créer un autre layout pour les boutons de détails
         LinearLayout layoutBoutonsDetails2 = createButtonLayout(boutonsDetails2, "toxique", "organique", "electronique");
         layout.addView(layoutBoutonsDetails2);
+        // Ajouter un espace pour un adresse
+        TextView positionLabel = new TextView(this);
+        positionLabel.setText("Position");
+        layout.addView(positionLabel);
+        // Ajouter des TextViews pour la latitude et la longitude
+        TextView latitudeLabel = new TextView(this);
+        latitudeLabel.setText("Latitude: " + lastClickedLatitude);
+        layout.addView(latitudeLabel);
 
+        TextView longitudeLabel = new TextView(this);
+        longitudeLabel.setText("Longitude: " + lastClickedLongitude);
+        layout.addView(longitudeLabel);
         // Ajouter un espace pour un commentaire
         TextView commentaire = new TextView(this);
         commentaire.setText("Commentaire");
@@ -249,6 +290,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Appliquer la largeur et la hauteur à l'AlertDialog
         alertDialog.getWindow().setLayout(dialogWidth, dialogHeight);
+        // Récupérer le bouton "Valider" pour pouvoir ajouter un clic
+        Button boutonValider = (Button) layoutBoutonsValider.getChildAt(1);
+        // Ajouter un clic pour le bouton "Valider"
+        boutonValider.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onValiderClick(alertDialog);
+            }
+        });
+        // Récupérer le bouton "Pointer" pour pouvoir ajouter un clic
+        Button boutonPointer = (Button) layoutBoutonsValider.getChildAt(0);
+        // Ajouter un clic pour le bouton "Pointer"
+        boutonPointer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Activez le mode "Pointer" et masquez le popup
+                modePointer = true;
+                alertDialog.dismiss();
+            }
+        });
+
     }
 
     // Méthode utilitaire pour créer un layout de boutons
@@ -296,7 +358,55 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Mettre en surbrillance le bouton cliqué
         boutonClique.setBackgroundColor(getResources().getColor(R.color.highlightColor));
     }
+    // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
+    private void onValiderClick(AlertDialog alert) {
+        String tailleSelectionnee = getBoutonSelectionne(boutonsTaille);
+        String detailsSelectionnes = getBoutonSelectionne(boutonsDetails) + ", " + getBoutonSelectionne(boutonsDetails2);
+        String commentaire = getCommentaire();
+        String position = getPosition();
 
+        // Faire quelque chose avec les informations récupérées
+        Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
+
+        // Ajouter le nouveau déchet à la liste
+        String nouvelId = ""; // ID temporaire
+        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude, "Nouveau déchet");
+        listeDechets.add(nouveauDechet);
+
+        // Afficher un Toast avec les informations du déchet ajouté
+        afficherToast("Déchet ajouté avec succès\nLatitude: " + lastClickedLatitude + "\nLongitude: " + lastClickedLongitude, R.color.green);
+
+        // Fermer le popup
+        fermerPopup(alert);
+    }
+
+    // Ajouter la methode pour fermer le popup
+    private void fermerPopup(AlertDialog alertDialog) {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+    }
+    private String getPosition() {
+        return "Latitude: " + lastClickedLatitude + ", Longitude: " + lastClickedLongitude;
+    }
+
+
+    // Méthode utilitaire pour récupérer le texte du champ de commentaire
+    private String getCommentaire() {
+    // TextInputLayout commentaireInputLayout = findViewById(R.id.commentaireInputLayout);
+    //  EditText commentaireEditText = commentaireInputLayout.findViewById(R.id.commentaireEditText);
+       return ""; //commentaireEditText.getText().toString();
+  }
+
+    // Méthode pour récupérer le texte du bouton sélectionné
+    private String getBoutonSelectionne(List<Button> boutons) {
+        for (Button bouton : boutons) {
+            if (bouton.getBackground() != null && bouton.getBackground().getConstantState().equals(getResources().getDrawable(R.color.highlightColor).getConstantState())) {
+                return bouton.getText().toString();
+            }
+        }
+        return "";
+    }
     private void afficherToast(String texteNotification, int couleurBackground) {
         // Créer un layout personnalisé pour le Toast
         LinearLayout toastLayout = new LinearLayout(this);
