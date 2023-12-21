@@ -7,28 +7,33 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-public class HomePageActivity extends AppCompatActivity {
+import java.util.List;
+
+public class EvenementActivity extends AppCompatActivity {
     private ImageButton boutonLogo,boutonHome,boutonMap,boutonAddPost,boutonEvent,boutonProfile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home_page);
+        setContentView(R.layout.activity_evenement);
 
+        // Récupérer la liste des événements depuis MapActivity
+        List<Evenement> listeEvenements =MapActivity.listeEvenements;
         boutonMap=(ImageButton)findViewById(R.id.imageButtonMap);
         boutonMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intentMap=new Intent(HomePageActivity.this, MapActivity.class);
+                Intent intentMap=new Intent(EvenementActivity.this, MapActivity.class);
                 startActivity(intentMap);
             }
         });
-        boutonEvent = (ImageButton) findViewById(R.id.imageButtonEvent);
-        boutonEvent.setOnClickListener(new View.OnClickListener() {
+        boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
+        boutonHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Ajouter le code pour naviguer vers l'activité Evenement
-                Intent intentEvent = new Intent(HomePageActivity.this, EvenementActivity.class);
-                startActivity(intentEvent);
+                Intent intentHome = new Intent(EvenementActivity.this, HomePageActivity.class);
+                startActivity(intentHome);
+
             }
         });
     }
