@@ -391,7 +391,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast("Déchet ajouté avec succès\nLatitude: " + lastClickedLatitude + "\nLongitude: " + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
-        afficherAlerte("Attention: (message a rediger) "+ nouveauDechet.description);
+        afficherAlerte("Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous même.\nMerci de votre signalement.");
         // Fermer le popup
         fermerPopup(alert);
     }
