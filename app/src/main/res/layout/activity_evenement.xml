@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical"
+    tools:context=".EvenementActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imageButtonLogo"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_weight="0"
+            android:background="@color/white"
+            android:contentDescription="@string/logo_de_l_application"
+            android:src="@android:drawable/btn_star" />
+
+        <TextView
+            android:id="@+id/textViewAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="47dp"
+            android:layout_weight="1"
+            android:text="Déching"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:typeface="normal" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/layoutMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imageButtonHome"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_accueil_vide___" />
+
+        <ImageButton
+            android:id="@+id/imageButtonMap"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_map_vide___" />
+
+        <ImageButton
+            android:id="@+id/imageButtonAddPost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_add_new_vide___" />
+
+        <ImageButton
+            android:id="@+id/imageButtonEvent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_month_rempli___" />
+
+        <ImageButton
+            android:id="@+id/imageButtonProfile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="@string/todo"
+            android:src="@drawable/icons8_account_vide___" />
+    </LinearLayout>
+
+</LinearLayout>

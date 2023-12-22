@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Button boutonSignaler;
 
     private List<Dechet> listeDechets = new ArrayList<>();
+    // creation d'un evenement instantane
+    public static List<Evenement> listeEvenements = new ArrayList<>();
+    //pour recuperer les imformation du derniere point creer afin de creer un evenement
+    private Dechet dernierDechetClique=null;
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +65,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
                 startActivity(intentHome);
+
             }
         });
-
+        boutonEvent = (ImageButton) findViewById(R.id.imageButtonEvent);
+        boutonEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Ajouter le code pour naviguer vers l'activité Evenement
+                Intent intentEvent = new Intent(MapActivity.this, EvenementActivity.class);
+                startActivity(intentEvent);
+            }
+        });
         boutonMap = findViewById(R.id.imageButtonMap);
 
         boutonLogo = findViewById(R.id.imageButtonLogo);
@@ -370,16 +384,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Ajouter le nouveau déchet à la liste
         String nouvelId = ""; // ID temporaire
-        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude, "Nouveau déchet");
+        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude, detailsSelectionnes);
         listeDechets.add(nouveauDechet);
-
+        // Stocker le dernier déchet cliqué
+        dernierDechetClique = nouveauDechet;
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast("Déchet ajouté avec succès\nLatitude: " + lastClickedLatitude + "\nLongitude: " + lastClickedLongitude, R.color.green);
-
+        // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
+        afficherAlerte("Attention: (message a rediger) "+ nouveauDechet.description);
         // Fermer le popup
         fermerPopup(alert);
     }
-
+    // Méthode pour afficher une boîte de dialogue d'alerte standard
+    private void afficherAlerte(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> {
+//                    // Code à exécuter lorsque l'utilisateur clique sur OK
+//                        Evenement nouvelEvenement = new Evenement(
+//                                0,
+//                                " Recolting",
+//                                "Événement associé au déchet : " + dernierDechetClique.description,
+//                                 1,
+//                                lastClickedLatitude+" "+lastClickedLongitude,
+//                                "00/00/0000"
+//                        );
+//
+//                        // Ajouter le nouvel événement à la liste
+//                        listeEvenements.add(nouvelEvenement);
+//
+//                        afficherToast("Recolting ajouté avec succès", R.color.green);
+                })
+                .show();
+    }
     // Ajouter la methode pour fermer le popup
     private void fermerPopup(AlertDialog alertDialog) {
         if (alertDialog != null && alertDialog.isShowing()) {
