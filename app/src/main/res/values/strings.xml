@@ -5,4 +5,7 @@
     <string name="todo">TODO</string>
     <string name="deching">Deching</string>
     <string name="logo_de_l_application">Logo de l\'application</string>
+
+    // Map
+    <string name="butonSignaler">Signaler</string>
 </resources>

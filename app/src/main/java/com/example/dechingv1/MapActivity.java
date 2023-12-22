@@ -7,9 +7,12 @@ import androidx.compose.material.icons.Icons;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +35,15 @@ import java.util.List;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageButton boutonLogo, boutonHome, boutonMap, boutonAddPost, boutonEvent, boutonProfile;
+
+    //ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
+    private double lastClickedLatitude;
+    private double lastClickedLongitude;
+    // Ajoutez une variable pour suivre l'état actuel quand on clic sur le button "Pointer" du popup
+    private boolean modePointer = false;
     //creation d'un dechet instantane pour la suppression d'un dechet reference
+    private Button boutonSignaler;
+
     private List<Dechet> listeDechets = new ArrayList<>();
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
     @Override
@@ -69,6 +81,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Log.d("exception", exception.getMessage() + " ");
         }
 
+        // Bouton pour ajouter un déchet
+        boutonSignaler = findViewById(R.id.buttonSignaler);
+        boutonSignaler.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                afficherPopup();
+            }
+        });
+
     }
 
     @Override
@@ -79,8 +100,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull LatLng latLng) {
+
                 Marker newDechet = googleMap.addMarker(new MarkerOptions().position(latLng));
-                afficherToast("Déchet ajouté avec succès", R.color.green);
+
+                if (modePointer) {
+                    // Ajoutez un marqueur à l'emplacement cliqué
+                    googleMap.addMarker(new MarkerOptions().position(latLng));
+                    // Mettre à jour les variables globales avec les dernières coordonnées
+                    lastClickedLatitude = latLng.latitude;
+                    lastClickedLongitude = latLng.longitude;
+                    // Ajoutez les informations que vous souhaitez récupérer en tant que tag du marqueur
+                    newDechet.setTag(new Dechet("ID", latLng.latitude, latLng.longitude, "Description"));
+                    afficherToast("Marqueur ajouté avec succès", R.color.green);
+
+                    // Désactivez le mode "Pointer" et réaffichez le popup
+                    modePointer = false;
+                    afficherPopup();
+                }
+
+
             }
         });
         LatLng bayonne = new LatLng(43.4833, -1.4833);
@@ -112,6 +150,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public boolean onMarkerClick(Marker marker) {
                 // Récupérer le déchet associé au marqueur
                 Dechet dechetSelectionne = trouverDechetParDescription(marker.getTitle());
+                // Récupérez les informations du marqueur à partir de la balise
+                Dechet markerInfo = (Dechet) marker.getTag();
+
+                // Vérifiez si la balise contient des informations
+                if (markerInfo != null) {
+                    // Utilisez les informations du marqueur comme nécessaire
+                    Log.d("Marker Clicked", "ID: " + markerInfo.id + ", Latitude: " + markerInfo.latitude +
+                            ", Longitude: " + markerInfo.longitude + ", Description: " + markerInfo.description);
+                }
 
                 // Afficher une boîte de dialogue ou exécuter l'action appropriée
                 if (dechetSelectionne != null) {
@@ -172,6 +219,194 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .show();
     }
 
+    private List<Button> boutonsTaille = new ArrayList<>();
+    private List<Button> boutonsDetails = new ArrayList<>();
+    private List<Button> boutonsDetails2 = new ArrayList<>();
+    private AlertDialog alertDialog;
+    private void afficherPopup() {
+        // Créer le constructeur de l'AlertDialog avec le contexte actuel
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Créer le layout principal pour le contenu de l'AlertDialog
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        // Ajouter le texte "Taille des déchets" au layout principal
+        TextView tailleDesDechetsText = new TextView(this);
+        tailleDesDechetsText.setText("Taille des déchets");
+        layout.addView(tailleDesDechetsText);
+
+        // Créer un layout pour les boutons de taille
+        LinearLayout layoutBoutons = createButtonLayout(boutonsTaille, "Petit", "Moyen", "Grand");
+        layout.addView(layoutBoutons);
+
+        // Ajouter le texte "Détails" au layout principal
+        TextView details = new TextView(this);
+        details.setText("Détails");
+        layout.addView(details);
+
+        // Créer un layout pour les boutons de détails
+        LinearLayout layoutBoutonsDetails = createButtonLayout(boutonsDetails, "ça pique", "ça mord", "ça mouille");
+        layout.addView(layoutBoutonsDetails);
+
+        // Créer un autre layout pour les boutons de détails
+        LinearLayout layoutBoutonsDetails2 = createButtonLayout(boutonsDetails2, "toxique", "organique", "electronique");
+        layout.addView(layoutBoutonsDetails2);
+        // Ajouter un espace pour un adresse
+        TextView positionLabel = new TextView(this);
+        positionLabel.setText("Position");
+        layout.addView(positionLabel);
+        // Ajouter des TextViews pour la latitude et la longitude
+        TextView latitudeLabel = new TextView(this);
+        latitudeLabel.setText("Latitude: " + lastClickedLatitude);
+        layout.addView(latitudeLabel);
+
+        TextView longitudeLabel = new TextView(this);
+        longitudeLabel.setText("Longitude: " + lastClickedLongitude);
+        layout.addView(longitudeLabel);
+        // Ajouter un espace pour un commentaire
+        TextView commentaire = new TextView(this);
+        commentaire.setText("Commentaire");
+        layout.addView(commentaire);
+
+        // Ajouter un champ de saisie pour le commentaire
+        TextInputLayout commentaireInputLayout = createCommentInputLayout();
+        layout.addView(commentaireInputLayout);
+
+        // Créer un layout pour les boutons "Pointer" et "Valider"
+        LinearLayout layoutBoutonsValider = createButtonLayout(null, "Pointer", "Valider");
+        layout.addView(layoutBoutonsValider);
+
+        // Définir la largeur et la hauteur de l'AlertDialog
+        int dialogWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
+        int dialogHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.8);
+
+        // Configurer le layout personnalisé pour l'AlertDialog
+        builder.setView(layout);
+        AlertDialog alertDialog = builder.create();
+
+        // Afficher l'AlertDialog
+        alertDialog.show();
+
+        // Appliquer la largeur et la hauteur à l'AlertDialog
+        alertDialog.getWindow().setLayout(dialogWidth, dialogHeight);
+        // Récupérer le bouton "Valider" pour pouvoir ajouter un clic
+        Button boutonValider = (Button) layoutBoutonsValider.getChildAt(1);
+        // Ajouter un clic pour le bouton "Valider"
+        boutonValider.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onValiderClick(alertDialog);
+            }
+        });
+        // Récupérer le bouton "Pointer" pour pouvoir ajouter un clic
+        Button boutonPointer = (Button) layoutBoutonsValider.getChildAt(0);
+        // Ajouter un clic pour le bouton "Pointer"
+        boutonPointer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Activez le mode "Pointer" et masquez le popup
+                modePointer = true;
+                alertDialog.dismiss();
+            }
+        });
+
+    }
+
+    // Méthode utilitaire pour créer un layout de boutons
+    private LinearLayout createButtonLayout(List<Button> buttonsList, String... buttonLabels) {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+
+        for (String label : buttonLabels) {
+            Button button = new Button(this);
+            button.setText(label);
+            button.setOnClickListener(v -> {
+                // Appeler la méthode pour gérer le bouton
+                mettreEnSurbrillance(buttonsList, button);
+                afficherToast(label, R.color.green);
+            });
+
+            layout.addView(button);
+
+            if (buttonsList != null) {
+                buttonsList.add(button);
+            }
+        }
+
+        return layout;
+    }
+
+    // Méthode utilitaire pour créer un TextInputLayout avec un champ de saisie pour le commentaire
+    private TextInputLayout createCommentInputLayout() {
+        TextInputLayout commentaireInputLayout = new TextInputLayout(this);
+        EditText commentaireEditText = new EditText(this);
+        commentaireEditText.setHint("Commentaire");
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = new InputFilter.LengthFilter(500);
+        commentaireEditText.setFilters(filters);
+        commentaireInputLayout.addView(commentaireEditText);
+        return commentaireInputLayout;
+    }
+
+    private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
+        // Parcourir la liste de boutons et retirer la surbrillance
+        for (Button bouton : boutons) {
+            bouton.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        }
+
+        // Mettre en surbrillance le bouton cliqué
+        boutonClique.setBackgroundColor(getResources().getColor(R.color.highlightColor));
+    }
+    // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
+    private void onValiderClick(AlertDialog alert) {
+        String tailleSelectionnee = getBoutonSelectionne(boutonsTaille);
+        String detailsSelectionnes = getBoutonSelectionne(boutonsDetails) + ", " + getBoutonSelectionne(boutonsDetails2);
+        String commentaire = getCommentaire();
+        String position = getPosition();
+
+        // Faire quelque chose avec les informations récupérées
+        Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
+
+        // Ajouter le nouveau déchet à la liste
+        String nouvelId = ""; // ID temporaire
+        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude, "Nouveau déchet");
+        listeDechets.add(nouveauDechet);
+
+        // Afficher un Toast avec les informations du déchet ajouté
+        afficherToast("Déchet ajouté avec succès\nLatitude: " + lastClickedLatitude + "\nLongitude: " + lastClickedLongitude, R.color.green);
+
+        // Fermer le popup
+        fermerPopup(alert);
+    }
+
+    // Ajouter la methode pour fermer le popup
+    private void fermerPopup(AlertDialog alertDialog) {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+    }
+    private String getPosition() {
+        return "Latitude: " + lastClickedLatitude + ", Longitude: " + lastClickedLongitude;
+    }
+
+
+    // Méthode utilitaire pour récupérer le texte du champ de commentaire
+    private String getCommentaire() {
+    // TextInputLayout commentaireInputLayout = findViewById(R.id.commentaireInputLayout);
+    //  EditText commentaireEditText = commentaireInputLayout.findViewById(R.id.commentaireEditText);
+       return ""; //commentaireEditText.getText().toString();
+  }
+
+    // Méthode pour récupérer le texte du bouton sélectionné
+    private String getBoutonSelectionne(List<Button> boutons) {
+        for (Button bouton : boutons) {
+            if (bouton.getBackground() != null && bouton.getBackground().getConstantState().equals(getResources().getDrawable(R.color.highlightColor).getConstantState())) {
+                return bouton.getText().toString();
+            }
+        }
+        return "";
+    }
     private void afficherToast(String texteNotification, int couleurBackground) {
         // Créer un layout personnalisé pour le Toast
         LinearLayout toastLayout = new LinearLayout(this);
