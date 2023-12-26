@@ -28,7 +28,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="@string/deching"
+            android:text="@string/nom_app"
             android:textSize="20sp"
             android:textStyle="bold" />
 
