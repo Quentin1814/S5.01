@@ -55,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 password = passwordEditText.getText().toString();
 
                 connectUser();
-
-                //Lancer la requête pour connecter l'utilisateur
             }
         });
 

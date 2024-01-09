@@ -55,7 +55,6 @@ public class CreateAccountActivity extends AppCompatActivity {
                 password = passwordEditText.getText().toString();
 
                 createAccount();
-                //Lancer la requête pour inscrire l'utilisateur
             }
         });
 
