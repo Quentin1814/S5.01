@@ -39,10 +39,18 @@
     <string name="dechetElectronic">électronique</string>
 
     <string name="dechetPosition">Position</string>
+    <string name="dechetPhoto">Prendre une photo</string>
     <string name="dechetComment">Commentaire</string>
 
     <string name="dechetPoint">Pointer</string>
     <string name="dechetValidate">Valider</string>
+
+    // Camera Layout
+
+    // Camera Activity
+    <string name="imageSaved">Image sauvegardée à :\ </string>
+    <string name="imageNotSavedError">Erreur lors de la sauvegarde de l\'image</string>
+    <string name="flashNotAvailable">Flash non disponible</string>
 
     // HomePage Layout
 
