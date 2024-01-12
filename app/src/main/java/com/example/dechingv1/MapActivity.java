@@ -5,8 +5,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.compose.material.icons.Icons;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
@@ -14,7 +20,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +57,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     //pour recuperer les imformation du derniere point creer afin de creer un evenement
     private Dechet dernierDechetClique=null;
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
+
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_SELECT_IMAGE_IN_ALBUM = 2;
+    private int CAMERA_ACTIVITY_REQUEST_CODE = 100;
+    // Créer un LinearLayout pour centrer l'ImageView
+    private LinearLayout layoutImageView;
+    private SharedPreferences sharedPreferences;
+    private String imagePath = "";
+    private ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -223,6 +240,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            afficherToast(getString(R.string.dechetPhoto), R.color.green);
+            layoutImageView.setVisibility(View.VISIBLE);
+            // Récupérer le chemin de l'image de SharedPreferences
+            sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
+            imagePath = sharedPreferences.getString("image_path", "");
+            // Utiliser le chemin de l'image pour afficher l'image
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            imageView.setImageBitmap(bitmap);
+            // Tourner l'image de 90 degrés
+            imageView.setRotation(90);
+        }
+    }
+
     private List<Button> boutonsTaille = new ArrayList<>();
     private List<Button> boutonsDetails = new ArrayList<>();
     private List<Button> boutonsDetails2 = new ArrayList<>();
@@ -256,10 +290,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Créer un autre layout pour les boutons de détails
         LinearLayout layoutBoutonsDetails2 = createButtonLayout(boutonsDetails2, getString(R.string.dechetToxic), getString(R.string.dechetOrganic), getString(R.string.dechetElectronic));
         layout.addView(layoutBoutonsDetails2);
+
         // Ajouter un espace pour un adresse
         TextView positionLabel = new TextView(this);
         positionLabel.setText(getString(R.string.dechetPosition));
         layout.addView(positionLabel);
+
         // Ajouter des TextViews pour la latitude et la longitude
         TextView latitudeLabel = new TextView(this);
         latitudeLabel.setText(getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude);
@@ -268,6 +304,36 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         TextView longitudeLabel = new TextView(this);
         longitudeLabel.setText(getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude);
         layout.addView(longitudeLabel);
+
+        layoutImageView = new LinearLayout(this);
+        layoutImageView.setVisibility(View.GONE);
+
+        // Ajouter un bouton pour une prise de photo
+        Button photoButton = new Button(this);
+        photoButton.setText(getString(R.string.dechetPhoto));
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Appeler l'activité de la caméra
+                Intent intent = new Intent(MapActivity.this, CameraActivity.class);
+                startActivityForResult(intent, CAMERA_ACTIVITY_REQUEST_CODE);
+            }
+        });
+        layout.addView(photoButton);
+
+        imageView = new ImageView(this);
+
+        layoutImageView.setGravity(Gravity.CENTER); // Centrer l'ImageView
+
+        // Définir la largeur et la hauteur du LinearLayout
+        int layoutWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.4);
+        int layoutHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.2);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(layoutWidth, layoutHeight);
+        layoutImageView.setLayoutParams(layoutParams);
+
+        layoutImageView.addView(imageView);
+        layout.addView(layoutImageView);
+
 
         // Ajouter un espace pour un commentaire
         TextView commentaire = new TextView(this);
@@ -286,8 +352,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         int dialogWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
         int dialogHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.8);
 
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.addView(layout);
+
         // Configurer le layout personnalisé pour l'AlertDialog
-        builder.setView(layout);
+        builder.setView(scrollView);
         AlertDialog alertDialog = builder.create();
 
         // Afficher l'AlertDialog
@@ -302,6 +371,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 onValiderClick(alertDialog);
+                sharedPreferences.edit().putString("image_path", "").apply();
             }
         });
         // Récupérer le bouton "Pointer" pour pouvoir ajouter un clic
