@@ -229,8 +229,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     supprimerDechet(dechet);
                     afficherToast("Déchet supprimé avec succès", R.color.red);
                 })
+                .setPositiveButton("Partager", (dialog, which) -> {
+                    // Appeler la méthode pour partager le déchet
+                    partagerDechet(dechet);
+                })
+
                 .setNegativeButton("Annuler", (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    private void partagerDechet(Dechet dechet) {
+
     }
 
     private List<Button> boutonsTaille = new ArrayList<>();
@@ -400,20 +409,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> {
-//                    // Code à exécuter lorsque l'utilisateur clique sur OK
-//                        Evenement nouvelEvenement = new Evenement(
-//                                0,
-//                                " Recolting",
-//                                "Événement associé au déchet : " + dernierDechetClique.description,
-//                                 1,
-//                                lastClickedLatitude+" "+lastClickedLongitude,
-//                                "00/00/0000"
-//                        );
-//
-//                        // Ajouter le nouvel événement à la liste
-//                        listeEvenements.add(nouvelEvenement);
-//
-//                        afficherToast("Recolting ajouté avec succès", R.color.green);
                 })
                 .show();
     }
