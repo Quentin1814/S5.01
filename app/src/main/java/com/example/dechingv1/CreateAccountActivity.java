@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,8 +53,9 @@ public class CreateAccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 username = usernameEditText.getText().toString();
+                Log.d("test", username );
                 password = passwordEditText.getText().toString();
-
+                Log.d("test", password);
                 createAccount();
             }
         });
@@ -92,7 +94,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     }
 
     public void createAccount() {
-        String url = "http://10.0.2.2/test/actions/createAccount.php";
+        String url = "https://deching.alwaysdata.net/Deching/actions/createAccount.php";
 
         Map<String, String> params = new HashMap<>();
         params.put("username", username);

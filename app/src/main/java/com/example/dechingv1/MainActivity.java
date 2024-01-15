@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,7 +15,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 username = usernameEditText.getText().toString();
+                Log.d("test2", username);
                 password = passwordEditText.getText().toString();
+                Log.d("test2", password);
 
                 connectUser();
             }
@@ -93,8 +95,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void connectUser() {
-        // 10.0.2.2 correspond à localhost dans google chrome
-        String url = "http://10.0.2.2/Test/actions/connectUser.php";
+        String url = "https://deching.alwaysdata.net/Deching/actions/connectUser.php";
 
         Map<String, String> params = new HashMap<>();
         params.put("username", username);
