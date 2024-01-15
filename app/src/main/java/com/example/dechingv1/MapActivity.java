@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageButton boutonLogo, boutonHome, boutonMap, boutonAddPost, boutonEvent, boutonProfile;
