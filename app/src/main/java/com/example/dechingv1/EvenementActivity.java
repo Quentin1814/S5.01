@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.example.dechingv1.Modele.Evenement;
+
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {

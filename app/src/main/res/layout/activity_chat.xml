@@ -32,5 +32,5 @@
             android:layout_alignParentEnd="true"
             android:text="Envoyer" />
     </RelativeLayout>
-</RelativeLayout>
 
+</RelativeLayout>

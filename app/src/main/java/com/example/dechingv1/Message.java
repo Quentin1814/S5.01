@@ -1,16 +1,21 @@
 package com.example.dechingv1;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
 public class Message {
-    private String username;
+    @PrimaryKey
+    private int id;
     private String message;
 
-    public Message(String username, String message) {
-        this.username = username;
+    public Message(int id, String message) {
+        this.id = id;
         this.message = message;
     }
 
-    public String getUsername() {
-        return username;
+    public int getId() {
+        return id;
     }
 
     public String getMessage() {

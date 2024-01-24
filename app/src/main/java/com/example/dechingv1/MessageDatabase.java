@@ -5,7 +5,9 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {Message.class, User.class}, version = 1)
+import com.example.dechingv1.Modele.Utilisateur;
+
+@Database(entities = {Message.class, Utilisateur.class}, version = 1)
 public abstract class MessageDatabase extends RoomDatabase {
 
     private static MessageDatabase instance;

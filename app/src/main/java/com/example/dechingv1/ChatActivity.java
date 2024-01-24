@@ -1,12 +1,14 @@
 package com.example.dechingv1;
+import  com.example.dechingv1.Modele.Utilisateur;
 import android.os.Bundle;
-import android.os.UserManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.dechingv1.Modele.Utilisateur;
 
 import java.util.List;
 
@@ -51,7 +53,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage() {
         String messageText = editTextMessage.getText().toString();
-        User currentUser = userManager.getCurrentUser();
+        Utilisateur currentUser = userManager.getCurrentUser();
         Message newMessage = new Message(currentUser.getId(), messageText);
         messageDatabase.messageDao().insertMessage(newMessage);
         messageAdapter.addMessage(newMessage);
@@ -59,7 +61,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void loadUserMessages() {
-        User currentUser = userManager.getCurrentUser();
+        Utilisateur currentUser = userManager.getCurrentUser();
         List<Message> userMessages = messageDatabase.messageDao().getMessagesForUser(currentUser.getId());
         messageAdapter.addMessages(userMessages);
     }
