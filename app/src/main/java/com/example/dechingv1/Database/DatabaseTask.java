@@ -9,7 +9,7 @@ public class DatabaseTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        String urlString = "https://deching.alwaysdata.net/home/deching/www/Deching/actions/user_api.php";  // URL de l'API PHP
+        String urlString = "https://deching.alwaysdata.net/home/deching/www/Deching/actions/Database.php";  // URL de l'API PHP
         String postData = "username=deching&password=8nj3FzYx*yRV7J.";  // données de connexion
 
         try {

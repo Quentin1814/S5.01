@@ -36,8 +36,8 @@ public class HomePageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Ajouter le code pour naviguer vers l'activité Chat(discussion)
-                Intent intentChat = new Intent(HomePageActivity.this, ChatActivity.class);
-                startActivity(intentChat);
+                //Intent intentChat = new Intent(HomePageActivity.this, ChatActivity.class);
+                //startActivity(intentChat);
             }
         });
     }

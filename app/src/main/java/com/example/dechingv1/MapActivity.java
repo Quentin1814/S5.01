@@ -1,5 +1,6 @@
 package com.example.dechingv1;
 import  com.example.dechingv1.Modele.Dechet;
+import  com.example.dechingv1.Modele.Utilisateur;
 import  com.example.dechingv1.Modele.Evenement;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -38,7 +39,7 @@ import java.util.List;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageButton boutonLogo, boutonHome, boutonMap, boutonAddPost, boutonEvent, boutonProfile;
-
+    private Utilisateur utilisateurActuel; // Ajoutez cette variable pour représenter l'utilisateur actuel
     //ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
     private double lastClickedLatitude;
     private double lastClickedLongitude;
