@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DechingV1</string>
+    <string name="app_name">Deching</string>
     <string name="nom_app">Déching</string>
     <string name="MAPS_API_KEY">AIzaSyBXXc6qaSWh7PQE9pXkLeVfQv8mCJaXTnc</string>
     <string name="todo">TODO</string>
@@ -40,7 +40,7 @@
 
     <string name="dechetPosition">Position</string>
     <string name="dechetPhoto">Prendre une photo</string>
-    <string name="dechetComment">Commentaire</string>
+    <string name="dechetComment">Commentaire (500 car)</string>
 
     <string name="dechetPoint">Pointer</string>
     <string name="dechetValidate">Valider</string>

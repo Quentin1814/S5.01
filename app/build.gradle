@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.dechingv1'
+    namespace 'com.example.deching'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.dechingv1"
+        applicationId "com.example.deching"
         minSdk 24
         targetSdk 33
         versionCode 1
