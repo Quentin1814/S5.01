@@ -1,30 +1,28 @@
-package com.example.dechingv1;
+package com.example.deching;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.compose.material.icons.Icons;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,38 +34,44 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private ImageButton boutonLogo, boutonHome, boutonMap, boutonAddPost, boutonEvent, boutonProfile;
 
-    //ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
+    // ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
     private double lastClickedLatitude;
     private double lastClickedLongitude;
+    // Ajoutez une variable pour suivre l'état actuel quand on clic sur le button "Pointer" du popup
+    private boolean modePointer = false;
+    // Ajoutez une variable pour stocker les paramètres du popup
+    private Map<String, String> popupParameters = new HashMap<>();
     //creation d'un dechet instantane pour la suppression d'un dechet reference
-    private Button boutonSignaler;
 
-    private List<Dechet> listeDechets = new ArrayList<>();
+
+    private final List<Dechet> listeDechets = new ArrayList<>();
     // creation d'un evenement instantane
     public static List<Evenement> listeEvenements = new ArrayList<>();
     //pour recuperer les imformation du derniere point creer afin de creer un evenement
-    private Dechet dernierDechetClique=null;
+
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int REQUEST_SELECT_IMAGE_IN_ALBUM = 2;
-    private int CAMERA_ACTIVITY_REQUEST_CODE = 100;
+    private final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
     // Créer un LinearLayout pour centrer l'ImageView
     private LinearLayout layoutImageView;
     private SharedPreferences sharedPreferences;
-    private String imagePath = "";
     private ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Button boutonSignaler;
+        ImageButton boutonEvent;
+        ImageButton boutonMap;
+        ImageButton boutonHome;
+        ImageButton boutonLogo;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
@@ -75,36 +79,28 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         listeDechets.add(new Dechet("1", 48.858844, 2.294350, "Déchet 1"));
         listeDechets.add(new Dechet("2", 48.860000, 2.297000, "Déchet 2"));
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
-        boutonHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
-                startActivity(intentHome);
+        boutonHome.setOnClickListener(v -> {
+            Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
+            startActivity(intentHome);
 
-            }
         });
         boutonEvent = (ImageButton) findViewById(R.id.imageButtonEvent);
-        boutonEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Ajouter le code pour naviguer vers l'activité Evenement
-                Intent intentEvent = new Intent(MapActivity.this, EvenementActivity.class);
-                startActivity(intentEvent);
-            }
+        boutonEvent.setOnClickListener(v -> {
+            // Ajouter le code pour naviguer vers l'activité Evenement
+            Intent intentEvent = new Intent(MapActivity.this, EvenementActivity.class);
+            startActivity(intentEvent);
         });
         boutonMap = findViewById(R.id.imageButtonMap);
 
         boutonLogo = findViewById(R.id.imageButtonLogo);
-        boutonLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MapActivity.this, HomePageActivity.class);
-                startActivity(intent);
-            }
+        boutonLogo.setOnClickListener(v -> {
+            Intent intent = new Intent(MapActivity.this, HomePageActivity.class);
+            startActivity(intent);
         });
 
         SupportMapFragment fragmentMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.layoutMap);
         try {
+            assert fragmentMap != null;
             fragmentMap.getMapAsync(this);
         } catch (Exception exception) {
             Log.d("exception", exception.getMessage() + " ");
@@ -112,11 +108,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Bouton pour ajouter un déchet
         boutonSignaler = findViewById(R.id.buttonSignaler);
-        boutonSignaler.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                afficherPopup();
-            }
+        boutonSignaler.setOnClickListener(v -> {
+            popupParameters = new HashMap<>();
+            afficherPopup();
         });
 
     }
@@ -126,18 +120,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         this.googleMap=googleMap;
 
         googleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_business)));
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
+        googleMap.setOnMapClickListener(latLng -> {
 
+
+            if (modePointer) {
+                // Mettre à jour les variables globales avec les dernières coordonnées
+                lastClickedLatitude = latLng.latitude;
+                lastClickedLongitude = latLng.longitude;
+
+                // Désactivez le mode "Pointer" et réaffichez le popup
+                modePointer = false;
+                afficherPopup(lastClickedLatitude, lastClickedLongitude);
+            } else {
                 Marker newDechet = googleMap.addMarker(new MarkerOptions().position(latLng));
-
                 // Ajoutez un marqueur à l'emplacement cliqué
                 googleMap.addMarker(new MarkerOptions().position(latLng));
                 // Mettre à jour les variables globales avec les dernières coordonnées
                 lastClickedLatitude = latLng.latitude;
                 lastClickedLongitude = latLng.longitude;
                 // Ajoutez les informations que vous souhaitez récupérer en tant que tag du marqueur
+                assert newDechet != null;
                 newDechet.setTag(new Dechet("ID", latLng.latitude, latLng.longitude, "Description"));
                 afficherToast(getString(R.string.dechetAdd), R.color.green);
             }
@@ -166,29 +168,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         // Ajouter un listener de clic sur les marqueurs
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // Récupérer le déchet associé au marqueur
-                Dechet dechetSelectionne = trouverDechetParDescription(marker.getTitle());
-                // Récupérez les informations du marqueur à partir de la balise
-                Dechet markerInfo = (Dechet) marker.getTag();
+        googleMap.setOnMarkerClickListener(marker -> {
+            // Récupérer le déchet associé au marqueur
+            Dechet dechetSelectionne = trouverDechetParDescription(marker.getTitle());
+            // Récupérez les informations du marqueur à partir de la balise
+            Dechet markerInfo = (Dechet) marker.getTag();
 
-                // Vérifiez si la balise contient des informations
-                if (markerInfo != null) {
-                    // Utilisez les informations du marqueur comme nécessaire
-                    Log.d("Marker Clicked", "ID: " + markerInfo.id + ", Latitude: " + markerInfo.latitude +
-                            ", Longitude: " + markerInfo.longitude + ", Description: " + markerInfo.description);
-                }
-
-                // Afficher une boîte de dialogue ou exécuter l'action appropriée
-                if (dechetSelectionne != null) {
-                   // Afficher les détails du déchet
-                    afficherDetailsDechet(dechetSelectionne);
-                }
-
-                return true;
+            // Vérifiez si la balise contient des informations
+            if (markerInfo != null) {
+                // Utilisez les informations du marqueur comme nécessaire
+                Log.d("Marker Clicked", "ID: " + markerInfo.id + ", Latitude: " + markerInfo.latitude +
+                        ", Longitude: " + markerInfo.longitude + ", Description: " + markerInfo.description);
             }
+
+            // Afficher une boîte de dialogue ou exécuter l'action appropriée
+            if (dechetSelectionne != null) {
+               // Afficher les détails du déchet
+                afficherDetailsDechet(dechetSelectionne);
+            }
+
+            return true;
         });
     }
 
@@ -248,7 +247,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             layoutImageView.setVisibility(View.VISIBLE);
             // Récupérer le chemin de l'image de SharedPreferences
             sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
-            imagePath = sharedPreferences.getString("image_path", "");
+            String imagePath = sharedPreferences.getString("image_path", "");
             // Utiliser le chemin de l'image pour afficher l'image
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             imageView.setImageBitmap(bitmap);
@@ -257,11 +256,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private List<Button> boutonsTaille = new ArrayList<>();
-    private List<Button> boutonsDetails = new ArrayList<>();
-    private List<Button> boutonsDetails2 = new ArrayList<>();
-    private AlertDialog alertDialog;
+    private final List<Button> boutonsTaille = new ArrayList<>();
+    private final List<Button> boutonsDetails = new ArrayList<>();
+    private final List<Button> boutonsDetails2 = new ArrayList<>();
+
     private void afficherPopup() {
+        afficherPopup(0.0, 0.0);
+    }
+    private void afficherPopup(Double lat, Double Lng) {
         // Créer le constructeur de l'AlertDialog avec le contexte actuel
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -298,11 +300,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Ajouter des TextViews pour la latitude et la longitude
         TextView latitudeLabel = new TextView(this);
-        latitudeLabel.setText(getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude);
+        latitudeLabel.setText(String.format("%s%s%s", getString(R.string.dechetLatitude), getString(R.string.deuxPoints), lat));
         layout.addView(latitudeLabel);
 
         TextView longitudeLabel = new TextView(this);
-        longitudeLabel.setText(getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude);
+        longitudeLabel.setText(String.format("%s%s%s", getString(R.string.dechetLongitude), getString(R.string.deuxPoints), Lng));
         layout.addView(longitudeLabel);
 
         layoutImageView = new LinearLayout(this);
@@ -311,13 +313,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Ajouter un bouton pour une prise de photo
         Button photoButton = new Button(this);
         photoButton.setText(getString(R.string.dechetPhoto));
-        photoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Appeler l'activité de la caméra
-                Intent intent = new Intent(MapActivity.this, CameraActivity.class);
-                startActivityForResult(intent, CAMERA_ACTIVITY_REQUEST_CODE);
-            }
+        photoButton.setOnClickListener(v -> {
+            // Appeler l'activité de la caméra
+            Intent intent = new Intent(MapActivity.this, CameraActivity.class);
+            startActivityForResult(intent, CAMERA_ACTIVITY_REQUEST_CODE);
         });
         layout.addView(photoButton);
 
@@ -344,6 +343,40 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         TextInputLayout commentaireInputLayout = createCommentInputLayout();
         layout.addView(commentaireInputLayout);
 
+        if (popupParameters != null) {
+            // Parcourir la liste de paramètres et mettre en surbrillance les boutons appropriés
+            for (String parametre : popupParameters.keySet()) {
+                switch (parametre) {
+                    case "Taille":
+                        for (Button bouton : boutonsTaille) {
+                            if (bouton.getText().toString().equals(popupParameters.get(parametre))) {
+                                mettreEnSurbrillance(boutonsTaille, bouton);
+                            }
+                        }
+                        break;
+                    case "Détails":
+                        for (Button bouton : boutonsDetails) {
+                            if (bouton.getText().toString().equals(popupParameters.get(parametre))) {
+                                mettreEnSurbrillance(boutonsDetails, bouton);
+                            }
+                        }
+                        break;
+                    case "Détails2":
+                        for (Button bouton : boutonsDetails2) {
+                            if (bouton.getText().toString().equals(popupParameters.get(parametre))) {
+                                mettreEnSurbrillance(boutonsDetails2, bouton);
+                            }
+                        }
+                        break;
+                    case "Commentaire":
+                        commentaireInputLayout.getEditText().setText(popupParameters.get(parametre));
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + parametre);
+                }
+            }
+        }
+
         // Créer un layout pour les boutons "Pointer" et "Valider"
         LinearLayout layoutBoutonsValider = createButtonLayout(null, getString(R.string.dechetPoint), getString(R.string.dechetValidate));
         layout.addView(layoutBoutonsValider);
@@ -367,22 +400,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Récupérer le bouton "Valider" pour pouvoir ajouter un clic
         Button boutonValider = (Button) layoutBoutonsValider.getChildAt(1);
         // Ajouter un clic pour le bouton "Valider"
-        boutonValider.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onValiderClick(alertDialog);
+        boutonValider.setOnClickListener(v -> {
+            onValiderClick(alertDialog);
+            popupParameters.put("Taille", getBoutonSelectionne(boutonsTaille));
+            popupParameters.put("Détails", getBoutonSelectionne(boutonsDetails));
+            popupParameters.put("Détails2", getBoutonSelectionne(boutonsDetails2));
+            popupParameters.put("Commentaire", commentaireInputLayout.getEditText().getText().toString());
+            if (sharedPreferences != null) {
                 sharedPreferences.edit().putString("image_path", "").apply();
             }
         });
         // Récupérer le bouton "Pointer" pour pouvoir ajouter un clic
         Button boutonPointer = (Button) layoutBoutonsValider.getChildAt(0);
         // Ajouter un clic pour le bouton "Pointer"
-        boutonPointer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Masquer le popup
-                alertDialog.dismiss();
-            }
+        boutonPointer.setOnClickListener(v -> {
+            // Activez le mode "Pointer" et masquez le popup
+            modePointer = true;
+            popupParameters.put("Taille", getBoutonSelectionne(boutonsTaille));
+            popupParameters.put("Détails", getBoutonSelectionne(boutonsDetails));
+            popupParameters.put("Détails2", getBoutonSelectionne(boutonsDetails2));
+            popupParameters.put("Commentaire", commentaireInputLayout.getEditText().getText().toString());
+            alertDialog.dismiss();
         });
 
     }
@@ -398,6 +436,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             button.setOnClickListener(v -> {
                 // Appeler la méthode pour gérer le bouton
                 mettreEnSurbrillance(buttonsList, button);
+
                 afficherToast(label, R.color.green);
             });
 
@@ -424,16 +463,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
-        // Parcourir la liste de boutons et retirer la surbrillance
+        // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
         for (Button bouton : boutons) {
-            bouton.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            bouton.setBackground(null);
         }
 
         // Mettre en surbrillance le bouton cliqué
         boutonClique.setBackgroundColor(getResources().getColor(R.color.highlightColor));
     }
+
     // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
     private void onValiderClick(AlertDialog alert) {
+        Dechet dernierDechetClique=null;
         String tailleSelectionnee = getBoutonSelectionne(boutonsTaille);
         String detailsSelectionnes = getBoutonSelectionne(boutonsDetails) + ", " + getBoutonSelectionne(boutonsDetails2);
         String commentaire = getCommentaire();
@@ -460,20 +501,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> {
-//                    // Code à exécuter lorsque l'utilisateur clique sur OK
-//                        Evenement nouvelEvenement = new Evenement(
-//                                0,
-//                                " Recolting",
-//                                "Événement associé au déchet : " + dernierDechetClique.description,
-//                                 1,
-//                                lastClickedLatitude+" "+lastClickedLongitude,
-//                                "00/00/0000"
-//                        );
-//
-//                        // Ajouter le nouvel événement à la liste
-//                        listeEvenements.add(nouvelEvenement);
-//
-//                        afficherToast("Recolting ajouté avec succès", R.color.green);
+                    // Code à exécuter lorsque l'utilisateur clique sur OK
+                    /*
+                        Evenement nouvelEvenement = new Evenement(
+                                0,
+                                " Recolting",
+                                "Événement associé au déchet : " + dernierDechetClique.description,
+                                 1,
+                                lastClickedLatitude+" "+lastClickedLongitude,
+                                "00/00/0000"
+                        );
+
+                        // Ajouter le nouvel événement à la liste
+                        listeEvenements.add(nouvelEvenement);
+
+                        afficherToast("Recolting ajouté avec succès", R.color.green);
+                     */
                 })
                 .show();
     }
@@ -489,16 +532,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     // Méthode utilitaire pour récupérer le texte du champ de commentaire
+    // je ne sers a rien pour toujours et a jamais
     private String getCommentaire() {
-    // TextInputLayout commentaireInputLayout = findViewById(R.id.commentaireInputLayout);
-    //  EditText commentaireEditText = commentaireInputLayout.findViewById(R.id.commentaireEditText);
-       return ""; //commentaireEditText.getText().toString();
-  }
+        // TextInputLayout commentaireInputLayout = findViewById(R.id.commentaireInputLayout);
+        //  EditText commentaireEditText = commentaireInputLayout.findViewById(R.id.commentaireEditText);
+        return ""; //commentaireEditText.getText().toString();
+    }
 
     // Méthode pour récupérer le texte du bouton sélectionné
     private String getBoutonSelectionne(List<Button> boutons) {
         for (Button bouton : boutons) {
-            if (bouton.getBackground() != null && bouton.getBackground().getConstantState().equals(getResources().getDrawable(R.color.highlightColor).getConstantState())) {
+            ColorDrawable background = (ColorDrawable) bouton.getBackground();
+            int colorId = 0;
+            if (background != null) {
+                colorId = background.getColor();
+            }
+            int colorCible = ContextCompat.getColor(this, R.color.highlightColor);
+            if (colorId == colorCible) {
                 return bouton.getText().toString();
             }
         }

@@ -1,14 +1,21 @@
-package com.example.dechingv1;
+package com.example.deching;
 
 import android.Manifest;
-import androidx.activity.result.ActivityResultCallback;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -17,16 +24,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.Toast;
-
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -34,15 +31,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 public class CameraActivity extends AppCompatActivity {
-    ImageButton capture, toogleFlash, flipCamera;
+    ImageButton capture;
+    ImageButton toogleFlash;
+    ImageButton flipCamera;
     private PreviewView previewView;
     int cameraFacing = CameraSelector.LENS_FACING_BACK;
-    private final ActivityResultLauncher<String> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
-        @Override
-        public void onActivityResult(Boolean result) {
-            if (result) {
-                startCamera(cameraFacing);
-            }
+    private final ActivityResultLauncher<String> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), result -> {
+        if (Boolean.TRUE.equals(result)) {
+            startCamera(cameraFacing);
         }
     });
     @Override
@@ -61,26 +57,40 @@ public class CameraActivity extends AppCompatActivity {
             startCamera(cameraFacing);
         }
 
-        flipCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (cameraFacing == CameraSelector.LENS_FACING_BACK) {
-                    cameraFacing = CameraSelector.LENS_FACING_FRONT;
-                } else {
-                    cameraFacing = CameraSelector.LENS_FACING_BACK;
-                }
-                startCamera(cameraFacing);
+        flipCamera.setOnClickListener(v -> {
+            if (cameraFacing == CameraSelector.LENS_FACING_BACK) {
+                cameraFacing = CameraSelector.LENS_FACING_FRONT;
+            } else {
+                cameraFacing = CameraSelector.LENS_FACING_BACK;
             }
+            startCamera(cameraFacing);
         });
     }
 
+    private boolean isSdkVersionTiramisuOrHigher() {
+        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
+    }
+
+    private void requestPermissionIfNotGranted(String permission) {
+        if (ContextCompat.checkSelfPermission(CameraActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+            activityResultLauncher.launch(permission);
+        }
+    }
+
     private void startCamera(int cameraFacing) {
+        // Demande de permission pour accéder aux images en fonction de la version de l'API
+        if (isSdkVersionTiramisuOrHigher()) {
+            requestPermissionIfNotGranted(Manifest.permission.READ_MEDIA_IMAGES);
+        } else {
+            requestPermissionIfNotGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
         int aspectRatio = AspectRatio(previewView.getWidth(), previewView.getHeight());
         ListenableFuture<ProcessCameraProvider> listenableFuture = ProcessCameraProvider.getInstance(this);
 
         listenableFuture.addListener(() -> {
             try {
-                ProcessCameraProvider cameraProvider = (ProcessCameraProvider) listenableFuture.get();
+                ProcessCameraProvider cameraProvider = listenableFuture.get();
 
                 Preview preview = new Preview.Builder().setTargetAspectRatio(aspectRatio).build();
 
@@ -94,23 +104,9 @@ public class CameraActivity extends AppCompatActivity {
 
                 Camera camera = cameraProvider.bindToLifecycle(CameraActivity.this, cameraSelector, preview, imageCapture);
 
-                capture.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (ContextCompat.checkSelfPermission(CameraActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            activityResultLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        } else {
-                            takePicture(imageCapture);
-                        }
-                    }
-                });
+                capture.setOnClickListener(v -> takePicture(imageCapture));
 
-                toogleFlash.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        setFlashIcon(camera);
-                    }
-                });
+                toogleFlash.setOnClickListener(v -> setFlashIcon(camera));
 
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
             } catch (ExecutionException | InterruptedException e) {
@@ -125,12 +121,7 @@ public class CameraActivity extends AppCompatActivity {
         imageCapture.takePicture(outputFileOptions, Executors.newCachedThreadPool(), new ImageCapture.OnImageSavedCallback() {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("TAG", "run: " + file.getPath());
-                    }
-                });
+                runOnUiThread(() -> {});
                 startCamera(cameraFacing);
 
                 SharedPreferences sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
@@ -144,12 +135,7 @@ public class CameraActivity extends AppCompatActivity {
 
             @Override
             public void onError(@NonNull ImageCaptureException exception) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(CameraActivity.this, getString(R.string.imageNotSavedError) + exception.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                runOnUiThread(() -> Toast.makeText(CameraActivity.this, getString(R.string.imageNotSavedError) + exception.getMessage(), Toast.LENGTH_SHORT).show());
                 startCamera(cameraFacing);
             }
         });
@@ -165,12 +151,7 @@ public class CameraActivity extends AppCompatActivity {
                 toogleFlash.setImageResource(R.drawable.baseline_flash_on_24);
             }
         } else {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(CameraActivity.this, getString(R.string.flashNotAvailable), Toast.LENGTH_SHORT).show();
-                }
-            });
+            runOnUiThread(() -> Toast.makeText(CameraActivity.this, getString(R.string.flashNotAvailable), Toast.LENGTH_SHORT).show());
         }
     }
 

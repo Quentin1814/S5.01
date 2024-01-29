@@ -1,6 +1,6 @@
-package com.example.dechingv1;
-    import java.util.Date;
-    public class Evenement {
+package com.example.deching;
+
+public class Evenement {
         private int id;
         private String nom;
         private String description;
