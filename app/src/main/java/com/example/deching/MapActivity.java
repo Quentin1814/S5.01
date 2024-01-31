@@ -1,11 +1,15 @@
 package com.example.deching;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,12 +26,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -42,7 +50,7 @@ import java.util.Map;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-
+    private FusedLocationProviderClient fusedLocationProviderClient;
     // ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
     private double lastClickedLatitude;
     private double lastClickedLongitude;
@@ -65,6 +73,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LinearLayout layoutImageView;
     private SharedPreferences sharedPreferences;
     private ImageView imageView;
+    ImageButton boutonPosition;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Button boutonSignaler;
@@ -72,19 +83,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ImageButton boutonMap;
         ImageButton boutonHome;
         ImageButton boutonLogo;
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
         // Initialisation de la liste de déchets (simulée)
         listeDechets.add(new Dechet("1", 48.858844, 2.294350, "Déchet 1"));
         listeDechets.add(new Dechet("2", 48.860000, 2.297000, "Déchet 2"));
-        boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
+        boutonHome = findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
             Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
             startActivity(intentHome);
-
         });
-        boutonEvent = (ImageButton) findViewById(R.id.imageButtonEvent);
+        boutonEvent = findViewById(R.id.imageButtonEvent);
         boutonEvent.setOnClickListener(v -> {
             // Ajouter le code pour naviguer vers l'activité Evenement
             Intent intentEvent = new Intent(MapActivity.this, EvenementActivity.class);
@@ -113,6 +126,78 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             afficherPopup();
         });
 
+        askAuthorisation();
+    }
+
+    private void askAuthorisation() {
+        if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Demandez la permission si elle n'est pas déjà accordée
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Demandez la permission si elle n'est pas déjà accordée
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+        }
+        onRequestPermissionsResult(1, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, new int[]{PackageManager.PERMISSION_GRANTED});
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            // change le src de l'imageButtonPosition
+            boutonPosition = findViewById(R.id.imageButtonPosition);
+            boutonPosition.setImageResource(R.drawable.position_clicked);
+            // Permission was granted, launch the runnable
+            handler.post(runnableCode);
+        }
+    }
+
+    private final Handler handler = new Handler();
+    private final Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            centerMapOnMyLocation();
+            handler.postDelayed(this, 2000);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handler.post(runnableCode);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnableCode);
+        // change le src de l'imageButtonPosition
+        boutonPosition = findViewById(R.id.imageButtonPosition);
+        boutonPosition.setImageResource(R.drawable.position_not_clicked);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void centerMapOnMyLocation() {
+        // Récupérer la dernière position connue
+        fusedLocationProviderClient.getCurrentLocation(100, null).addOnSuccessListener(this, location -> {
+            if (location != null) {
+                // Créer un objet LatLng à partir de la dernière position connue
+                LatLng lastKnownLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                // Centrer la caméra sur la dernière position connue
+                animateCameraToPosition(googleMap, lastKnownLocation, 2000);
+            }
+        });
+    }
+
+    private void animateCameraToPosition(GoogleMap map, LatLng newPosition, int duration) {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(newPosition)   // Sets the new camera position
+                .zoom(15f)             // Sets the zoom
+                // .bearing(90)        // Optional
+                // .tilt(40)           // Optional
+                .build();              // Creates a CameraPosition from the builder
+
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), duration, null);
     }
 
     @Override
@@ -121,8 +206,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         googleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_business)));
         googleMap.setOnMapClickListener(latLng -> {
-
-
             if (modePointer) {
                 // Mettre à jour les variables globales avec les dernières coordonnées
                 lastClickedLatitude = latLng.latitude;
@@ -148,7 +231,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(bayonne));
         Log.d("Activity", "c'est l'activité qui affiche la map");
 
-
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
             LatLng position = new LatLng(dechet.latitude, dechet.longitude);
@@ -166,6 +248,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             LatLng premierDechet = new LatLng(listeDechets.get(0).latitude, listeDechets.get(0).longitude);
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(premierDechet, 10));
         }
+
+        boutonPosition.setOnClickListener(v -> onRequestPermissionsResult(1, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, new int[]{PackageManager.PERMISSION_GRANTED}));
+
+        // Add a listener for when the user starts to move the camera
+        googleMap.setOnCameraMoveStartedListener(reason -> {
+            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                // The user manually moves the camera, stop the Runnable
+                onPause();
+            }
+        });
 
         // Ajouter un listener de clic sur les marqueurs
         googleMap.setOnMarkerClickListener(marker -> {
