@@ -1,4 +1,4 @@
-package com.example.dechingv1.Modele;
+package com.example.deching.Modele.Modele;
 
 import java.sql.Blob;
 import java.sql.Date;
@@ -6,10 +6,11 @@ import java.util.ArrayList;
 
 public class Utilisateur {
     private int id;//Identifiant de l'utilisateur dans la base de données
-    private String nom;//Nom de l'utilisateur
+    private String nom;//Nom de famille de l'utilisateur
     private String prenom;//Prenom de l'utilisateur
     private Date dateNaiss;//Date de naissance de l'utilisateur
     private String mail;//Adresse mail de l'utilisateur
+    private String username;//Nom d'utilisateur choisi par celui-ci et unique
     private String mdp;//Mot de passe de l'utilisateur pour se connecter
     private String tel;//Numéro de téléphone de l'utilisateur
     private String type;//Type de l'utilisateur (normal, école, groupe, collectivité)

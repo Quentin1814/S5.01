@@ -24,6 +24,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.deching.Modele.Modele.Dechet;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,6 +41,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +52,6 @@ import java.util.Map;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
-
 
     // ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
     private double lastClickedLatitude;
@@ -68,6 +77,31 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        RequestQueue queue;
+        queue = Volley.newRequestQueue(this);
+        queue.start();
+
+        String url = "https://deching.alwaysdata.net/home/deching/www/Deching/actions/Utilisateur.php?id=2";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String reponse) {// code à exécuter une fois les données chargées
+                Log.d("retourHTTP",reponse);
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {// code à exécuter lorsqu'une erreur de communication // avec le serveur est détectée
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>(); // préparation des paramètres à envoyer au script PHP return params;
+                return params;
+            }
+        };
+        queue.add(stringRequest);
+
         Button boutonSignaler;
         ImageButton boutonEvent;
         ImageButton boutonMap;
@@ -77,8 +111,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         // Initialisation de la liste de déchets (simulée)
-        listeDechets.add(new Dechet("1", 48.858844, 2.294350, "Déchet 1"));
-        listeDechets.add(new Dechet("2", 48.860000, 2.297000, "Déchet 2"));
+        listeDechets.add(new Dechet(1, 48.858844, 2.294350, "moyen","Déchet 1"));
+        listeDechets.add(new Dechet(2, 48.860000, 2.297000,"grand" ,"Déchet 2"));
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
             Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
@@ -141,7 +175,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 lastClickedLongitude = latLng.longitude;
                 // Ajoutez les informations que vous souhaitez récupérer en tant que tag du marqueur
                 assert newDechet != null;
-                newDechet.setTag(new Dechet("ID", latLng.latitude, latLng.longitude, "Description"));
+                newDechet.setTag(new Dechet(1, latLng.latitude, latLng.longitude,"petit" ,"Description"));
                 afficherToast(getString(R.string.dechetAdd), R.color.green);
             }
         });
@@ -152,8 +186,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
-            LatLng position = new LatLng(dechet.latitude, dechet.longitude);
-            googleMap.addMarker(new MarkerOptions().position(position).title(dechet.description));
+            LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
+            googleMap.addMarker(new MarkerOptions().position(position).title(dechet.getDescription()));
         }
         // Ajoute un marqueur à des coordonnées fixes
         LatLng positionFixe = new LatLng(48.858844, 2.294350);
@@ -164,7 +198,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Centrer la caméra sur la première position (si elle existe)
         if (!listeDechets.isEmpty()) {
-            LatLng premierDechet = new LatLng(listeDechets.get(0).latitude, listeDechets.get(0).longitude);
+            LatLng premierDechet = new LatLng(listeDechets.get(0).getLatitude(), listeDechets.get(0).getLongitude());
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(premierDechet, 10));
         }
 
@@ -178,8 +212,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             // Vérifiez si la balise contient des informations
             if (markerInfo != null) {
                 // Utilisez les informations du marqueur comme nécessaire
-                Log.d("Marker Clicked", "ID: " + markerInfo.id + ", Latitude: " + markerInfo.latitude +
-                        ", Longitude: " + markerInfo.longitude + ", Description: " + markerInfo.description);
+                Log.d("Marker Clicked", "ID: " + markerInfo.getId() + ", Latitude: " + markerInfo.getLatitude() +
+                        ", Longitude: " + markerInfo.getLongitude() + ", Description: " + markerInfo.getDescription());
             }
 
             // Afficher une boîte de dialogue ou exécuter l'action appropriée
@@ -202,7 +236,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Méthode pour trouver un déchet par sa description (simulée)
     private Dechet trouverDechetParDescription(String description) {
         for (Dechet dechet : listeDechets) {
-            if (dechet.description.equals(description)) {
+            if (dechet.getDescription().equals(description)) {
                 return dechet;
             }
         }
@@ -218,8 +252,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             // Ajouter des marqueurs pour chaque déchet dans la liste mise à jour
             for (Dechet dechet : listeDechets) {
-                LatLng position = new LatLng(dechet.latitude, dechet.longitude);
-                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.description));
+                LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.getDescription()));
             }
         }
     }
@@ -227,10 +261,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
-                .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.id + "\n"
-                        + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.latitude + "\n"
-                        + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.longitude + "\n"
-                        + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.description)
+                .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
+                        + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
+                        + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
+                        + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
                 .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
                     // Appeler la méthode pour supprimer le déchet après confirmation
                     supprimerDechet(dechet);
@@ -485,8 +519,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        String nouvelId = ""; // ID temporaire
-        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude, detailsSelectionnes);
+        int nouvelId = 4; // ID temporaire
+        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude, "petit",detailsSelectionnes);
         listeDechets.add(nouveauDechet);
         // Stocker le dernier déchet cliqué
         dernierDechetClique = nouveauDechet;
@@ -576,6 +610,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toast.setDuration(Toast.LENGTH_SHORT);
         toast.setView(toastLayout);
         toast.show();
+    }
+
+    protected void addZoneDechet(Dechet unDechet){
+
+        try {
+            RequestQueue queue;
+            queue = Volley.newRequestQueue(this);
+            queue.start();
+
+            JSONObject objetjson = new JSONObject();
+            objetjson.put("latitude",unDechet.getLatitude());
+            objetjson.put("longitude",unDechet.getLongitude());
+            objetjson.put("description",unDechet.getDescription());
+            objetjson.put("idUtilisateur",1);
+            objetjson.put("idCollecte",2);
+            objetjson.put("idEvenement",3);
+
+            String url = "https://deching.alwaysdata.net/home/deching/www/Deching/actions/Dechet.php";
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String reponse) {// code à exécuter une fois les données chargées
+                    Log.d("retourHTTP",reponse);
+                }
+            },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {// code à exécuter lorsqu'une erreur de communication // avec le serveur est détectée
+                        }
+                    }) {
+            };
+            queue.add(stringRequest);
+        }catch (JSONException jsonException){
+            Log.d("erreur json",jsonException.getMessage());
+        }
+
+
+
     }
 
 }
