@@ -119,6 +119,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        boutonProfile = findViewById(R.id.imageButtonProfile);
+
+        boutonProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapActivity.this, profilUtilisateur.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

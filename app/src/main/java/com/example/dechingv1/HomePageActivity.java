@@ -31,5 +31,16 @@ public class HomePageActivity extends AppCompatActivity {
                 startActivity(intentEvent);
             }
         });
+
+
+        boutonProfile=(ImageButton)findViewById(R.id.imageButtonProfile);
+        boutonProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentEvent = new Intent(HomePageActivity.this, profilUtilisateur.class);
+                startActivity(intentEvent);
+            }
+        });
+
     }
-}
+    }
