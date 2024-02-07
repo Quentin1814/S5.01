@@ -12,18 +12,6 @@
     // Map Layout
     <string name="butonSignaler">Signaler</string>
 
-    // Map Activity
-    <string name="dechetAdd">Déchet ajouté avec succès</string>
-    <string name="dechetDelete">Déchet supprimé avec succès</string>
-    <string name="dechetWarning">Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous même.\nMerci de votre signalement.</string>
-
-    <string name="delete">Supprimer</string>
-    <string name="cancel">Annuler</string>
-
-    <string name="dechetID">ID</string>
-    <string name="dechetLatitude">Latitude</string>
-    <string name="dechetLongitude">Longitude</string>
-    <string name="dechetDescription">Description</string>
 
     <string name="dechetSize">Taille des déchets</string>
     <string name="dechetSizeSmall">Petit</string>
@@ -41,9 +29,25 @@
     <string name="dechetPosition">Position</string>
     <string name="dechetPhoto">Prendre une photo</string>
     <string name="dechetComment">Commentaire (500 car)</string>
+    <string name="dechetComment2">Commentaire...</string>
 
     <string name="dechetPoint">Pointer</string>
     <string name="dechetValidate">Valider</string>
+
+    // Map Activity
+    <string name="dechetAdd">Déchet ajouté avec succès</string>
+    <string name="dechetDelete">Déchet supprimé avec succès</string>
+    <string name="dechetWarning">Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous même.\nMerci de votre signalement.</string>
+
+    <string name="delete">Supprimer</string>
+    <string name="cancel">Annuler</string>
+
+    <string name="dechetID">ID</string>
+    <string name="dechetLatitude">Latitude</string>
+    <string name="dechetLongitude">Longitude</string>
+    <string name="dechetDescription">Description</string>
+
+
 
     // Camera Layout
 

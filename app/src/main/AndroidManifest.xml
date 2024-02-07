@@ -26,9 +26,6 @@
             android:name=".CameraActivity"
             android:exported="false" />
         <activity
-            android:name=".DiscussionActivity"
-            android:exported="false" />
-        <activity
             android:name=".MapActivity"
             android:exported="true">
             <intent-filter>
@@ -37,6 +34,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InterfaceActivity"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -60,6 +63,9 @@
             android:exported="false" />
         <activity
             android:name=".EvenementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateAccountActivity"
             android:exported="false" />
     </application>
 
