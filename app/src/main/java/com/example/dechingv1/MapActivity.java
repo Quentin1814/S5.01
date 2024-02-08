@@ -124,7 +124,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 lastClickedLatitude = latLng.latitude;
                 lastClickedLongitude = latLng.longitude;
                 // Ajoutez les informations que vous souhaitez récupérer en tant que tag du marqueur
+
                 newDechet.setTag(new Dechet( latLng.latitude, latLng.longitude,1, "Description"));
+
+                newDechet.setTag(new Dechet( latLng.latitude, latLng.longitude,1, "Description"));
+
                 afficherToast(getString(R.string.dechetAdd), R.color.green);
             }
         });
@@ -213,6 +217,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
+
+                .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
+                        + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
+                        + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
+                        + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
+
                 .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
                         + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
                         + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
@@ -232,6 +242,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
 
+
+                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
