@@ -38,6 +38,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
+import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -270,7 +271,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
             LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
-            googleMap.addMarker(new MarkerOptions().position(position).title(dechet.getDescription()));
+            googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
         }
         // Ajoute un marqueur à des coordonnées fixes
         LatLng positionFixe = new LatLng(48.858844, 2.294350);
@@ -298,7 +299,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Ajouter un listener de clic sur les marqueurs
         googleMap.setOnMarkerClickListener(marker -> {
             // Récupérer le déchet associé au marqueur
-            Dechet dechetSelectionne = trouverDechetParDescription(marker.getTitle());
+            Dechet dechetSelectionne = trouverDechetParToString(marker.getTitle());
             // Récupérez les informations du marqueur à partir de la balise
             Dechet markerInfo = (Dechet) marker.getTag();
 
@@ -327,9 +328,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     // Méthode pour trouver un déchet par sa description (simulée)
-    private Dechet trouverDechetParDescription(String description) {
+    private Dechet trouverDechetParToString(String toStringDechet) {
         for (Dechet dechet : listeDechets) {
-            if (dechet.getDescription().equals(description)) {
+            if (dechet.toString().equals(toStringDechet)) {
                 return dechet;
             }
         }
