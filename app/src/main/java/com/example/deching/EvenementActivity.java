@@ -6,6 +6,8 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.deching.R;
+
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {
@@ -23,6 +25,7 @@ public class EvenementActivity extends AppCompatActivity {
 
         // Récupérer la liste des événements depuis MapActivity
         List<Evenement> listeEvenements = MapActivity.listeEvenements;
+
         boutonMap=(ImageButton)findViewById(R.id.imageButtonMap);
         boutonMap.setOnClickListener(v -> {
             Intent intentMap=new Intent(EvenementActivity.this, MapActivity.class);

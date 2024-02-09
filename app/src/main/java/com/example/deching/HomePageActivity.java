@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.example.deching.R;
+
 public class HomePageActivity extends AppCompatActivity {
     private ImageButton boutonLogo;
     private ImageButton boutonHome;
