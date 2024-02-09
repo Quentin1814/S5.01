@@ -8,10 +8,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -41,6 +39,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
 import com.example.deching.utilitaire.VolleyCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,7 +50,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,7 +63,7 @@ import java.util.Map;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
-
+    private FusedLocationProviderClient fusedLocationProviderClient;
     // ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
     private double lastClickedLatitude;
     private double lastClickedLongitude;
@@ -96,12 +95,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         Button boutonSignaler;
         ImageButton boutonEvent;
         ImageButton boutonMap;
         ImageButton boutonHome;
         ImageButton boutonLogo;
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
@@ -174,6 +175,55 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         onRequestPermissionsResult(1, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, new int[]{PackageManager.PERMISSION_GRANTED});
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            // change le src de l'imageButtonPosition
+            boutonPosition = findViewById(R.id.imageButtonPosition);
+            boutonPosition.setImageResource(R.drawable.position_clicked);
+            // Permission was granted, launch the runnable
+            handler.post(runnableCode);
+        }
+    }
+
+    private final Handler handler = new Handler();
+    private final Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            centerMapOnMyLocation();
+            handler.postDelayed(this, 4000);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handler.post(runnableCode);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnableCode);
+        // change le src de l'imageButtonPosition
+        boutonPosition = findViewById(R.id.imageButtonPosition);
+        boutonPosition.setImageResource(R.drawable.position_not_clicked);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void centerMapOnMyLocation() {
+        // Récupérer la dernière position connue
+        fusedLocationProviderClient.getCurrentLocation(100, null).addOnSuccessListener(this, location -> {
+            if (location != null) {
+                // Créer un objet LatLng à partir de la dernière position connue
+                LatLng lastKnownLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                // Centrer la caméra sur la dernière position connue
+                animateCameraToPosition(googleMap, lastKnownLocation);
+            }
+        });
+    }
+
     private void animateCameraToPosition(GoogleMap map, LatLng newPosition) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(newPosition)   // Sets the new camera position
@@ -234,6 +284,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             LatLng premierDechet = new LatLng(listeDechets.get(0).getLatitude(), listeDechets.get(0).getLongitude());
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(premierDechet, 10));
         }
+
+        boutonPosition.setOnClickListener(v -> onRequestPermissionsResult(1, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, new int[]{PackageManager.PERMISSION_GRANTED}));
+
+        // Add a listener for when the user starts to move the camera
+        googleMap.setOnCameraMoveStartedListener(reason -> {
+            if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                // The user manually moves the camera, stop the Runnable
+                onPause();
+            }
+        });
 
         // Ajouter un listener de clic sur les marqueurs
         googleMap.setOnMarkerClickListener(marker -> {
@@ -307,6 +367,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            ImageView displayPhoto = findViewById(R.id.dechetDisplayPhoto);
+            afficherToast(getString(R.string.dechetPhoto), R.color.green);
+
+            // Récupérer le chemin de l'image de SharedPreferences
+            sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
+            String imagePath = sharedPreferences.getString("image_path", "");
+
+            // Utiliser le chemin de l'image pour afficher l'image
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+
+            // Tourner l'image de 90 degrés
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+            // Redimensionner l'image pour s'ajuster à la taille de displayPhoto
+            int maxWidth = displayPhoto.getWidth();
+            int maxHeight = displayPhoto.getHeight();
+
+            if (maxWidth > 0 && maxHeight > 0) {
+                float scale = Math.min(((float) maxWidth) / rotatedBitmap.getWidth(), ((float) maxHeight) / rotatedBitmap.getHeight());
+
+                Matrix resizeMatrix = new Matrix();
+                resizeMatrix.postScale(scale, scale);
+
+                Bitmap resizedBitmap = Bitmap.createBitmap(rotatedBitmap, 0, 0, rotatedBitmap.getWidth(), rotatedBitmap.getHeight(), resizeMatrix, true);
+
+                // Afficher l'image redimensionnée
+                displayPhoto.setImageBitmap(resizedBitmap);
+            } else {
+                // Si les dimensions de displayPhoto ne sont pas encore connues, utilisez simplement la bitmap telle quelle
+                displayPhoto.setImageBitmap(rotatedBitmap);
+            }
+        }
+    }
+
     private final List<Button> boutonsTaille = new ArrayList<>();
     private final List<Button> boutonsDetails = new ArrayList<>();
     private final List<Button> boutonsDetails2 = new ArrayList<>();
@@ -315,220 +415,162 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         afficherPopup(0.0, 0.0);
     }
     private void afficherPopup(Double lat, Double Lng) {
-        // Créer le constructeur de l'AlertDialog avec le contexte actuel
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Récupérer tous les frame layouts
+        FrameLayout layoutMap = findViewById(R.id.map);
+        ScrollView layoutPopup = findViewById(R.id.popup);
+        // Rendre le layout de la carte invisible
+        layoutMap.setVisibility(View.GONE);
 
-        // Créer le layout principal pour le contenu de l'AlertDialog
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
+        // Rendre le layout du popup visible
+        layoutPopup.setVisibility(View.VISIBLE);
 
-        // Ajouter le texte "Taille des déchets" au layout principal
-        TextView tailleDesDechetsText = new TextView(this);
-        tailleDesDechetsText.setText(getString(R.string.dechetSize));
-        layout.addView(tailleDesDechetsText);
+        // Récupérer tous les boutons du popup
+        ImageButton close = findViewById(R.id.dechetClose);
+        Button petit = findViewById(R.id.dechetSizeSmall);
+        Button moyen = findViewById(R.id.dechetSizeMedium);
+        Button grand = findViewById(R.id.dechetSizeLarge);
+        Button piquant = findViewById(R.id.dechetStings);
+        Button mordant = findViewById(R.id.dechetBites);
+        Button mouille = findViewById(R.id.dechetWet);
+        Button toxique = findViewById(R.id.dechetToxic);
+        Button organique = findViewById(R.id.dechetOrganic);
+        Button electronique = findViewById(R.id.dechetElectronic);
+        TextView latitude = findViewById(R.id.latitude);
+        TextView longitude = findViewById(R.id.longitude);
+        Button takePhoto = findViewById(R.id.dechetPhoto);
+        ImageView displayPhoto = findViewById(R.id.dechetDisplayPhoto);
+        EditText commentaire = findViewById(R.id.dechetComment2);
+        Button pointer = findViewById(R.id.dechetPoint);
+        Button valider = findViewById(R.id.dechetValidate);
 
-        // Créer un layout pour les boutons de taille
-        LinearLayout layoutBoutons = createButtonLayout(boutonsTaille, getString(R.string.dechetSizeSmall), getString(R.string.dechetSizeMedium), getString(R.string.dechetSizeLarge));
-        layout.addView(layoutBoutons);
+        close.setOnClickListener(v -> {
+            // Rendre le layout de la carte visible
+            layoutMap.setVisibility(View.VISIBLE);
+            // Rendre le layout du popup invisible
+            layoutPopup.setVisibility(View.GONE);
+            popupParameters = null;
+        });
 
-        // Ajouter le texte "Détails" au layout principal
-        TextView details = new TextView(this);
-        details.setText(getString(R.string.dechetDetails));
-        layout.addView(details);
+        latitude.setText(lat.toString());
+        longitude.setText(Lng.toString());
 
-        // Créer un layout pour les boutons de détails
-        LinearLayout layoutBoutonsDetails = createButtonLayout(boutonsDetails, getString(R.string.dechetStings), getString(R.string.dechetBites), getString(R.string.dechetWet));
-        layout.addView(layoutBoutonsDetails);
+        // Ajouter tous les boutons à la liste de boutons
+        boutonsTaille.add(petit);
+        boutonsTaille.add(moyen);
+        boutonsTaille.add(grand);
 
-        // Créer un autre layout pour les boutons de détails
-        LinearLayout layoutBoutonsDetails2 = createButtonLayout(boutonsDetails2, getString(R.string.dechetToxic), getString(R.string.dechetOrganic), getString(R.string.dechetElectronic));
-        layout.addView(layoutBoutonsDetails2);
+        boutonsDetails.add(piquant);
+        boutonsDetails.add(mordant);
+        boutonsDetails.add(mouille);
 
-        // Ajouter un espace pour un adresse
-        TextView positionLabel = new TextView(this);
-        positionLabel.setText(getString(R.string.dechetPosition));
-        layout.addView(positionLabel);
+        boutonsDetails2.add(toxique);
+        boutonsDetails2.add(organique);
+        boutonsDetails2.add(electronique);
 
-        // Ajouter des TextViews pour la latitude et la longitude
-        TextView latitudeLabel = new TextView(this);
-        latitudeLabel.setText(String.format("%s%s%s", getString(R.string.dechetLatitude), getString(R.string.deuxPoints), lat));
-        layout.addView(latitudeLabel);
+        // Ajout des clics pour chaque bouton de taille
+        configurerBouton(petit, boutonsTaille, R.string.dechetSizeSmall, R.color.green);
+        configurerBouton(moyen, boutonsTaille, R.string.dechetSizeMedium, R.color.green);
+        configurerBouton(grand, boutonsTaille, R.string.dechetSizeLarge, R.color.green);
 
-        TextView longitudeLabel = new TextView(this);
-        longitudeLabel.setText(String.format("%s%s%s", getString(R.string.dechetLongitude), getString(R.string.deuxPoints), Lng));
-        layout.addView(longitudeLabel);
+        // Ajout des clics pour chaque bouton de détails
+        configurerBouton(piquant, boutonsDetails, R.string.dechetStings, R.color.green);
+        configurerBouton(mordant, boutonsDetails, R.string.dechetBites, R.color.green);
+        configurerBouton(mouille, boutonsDetails, R.string.dechetWet, R.color.green);
 
-        layoutImageView = new LinearLayout(this);
-        layoutImageView.setVisibility(View.GONE);
+        // Ajout des clics pour chaque bouton de détails 2
+        configurerBouton(toxique, boutonsDetails2, R.string.dechetToxic, R.color.green);
+        configurerBouton(organique, boutonsDetails2, R.string.dechetOrganic, R.color.green);
+        configurerBouton(electronique, boutonsDetails2, R.string.dechetElectronic, R.color.green);
 
-        // Ajouter un bouton pour une prise de photo
-        Button photoButton = new Button(this);
-        photoButton.setText(getString(R.string.dechetPhoto));
-        photoButton.setOnClickListener(v -> {
+        takePhoto.setOnClickListener(v -> {
             // Appeler l'activité de la caméra
             Intent intent = new Intent(MapActivity.this, CameraActivity.class);
             startActivityForResult(intent, CAMERA_ACTIVITY_REQUEST_CODE);
         });
-        layout.addView(photoButton);
-
-        imageView = new ImageView(this);
-
-        layoutImageView.setGravity(Gravity.CENTER); // Centrer l'ImageView
-
-        // Définir la largeur et la hauteur du LinearLayout
-        int layoutWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.4);
-        int layoutHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.2);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(layoutWidth, layoutHeight);
-        layoutImageView.setLayoutParams(layoutParams);
-
-        layoutImageView.addView(imageView);
-        layout.addView(layoutImageView);
-
-
-        // Ajouter un espace pour un commentaire
-        TextView commentaire = new TextView(this);
-        commentaire.setText(getString(R.string.dechetComment));
-        layout.addView(commentaire);
-
-        // Ajouter un champ de saisie pour le commentaire
-        TextInputLayout commentaireInputLayout = createCommentInputLayout();
-        layout.addView(commentaireInputLayout);
 
         if (popupParameters != null) {
-            // Parcourir la liste de paramètres et mettre en surbrillance les boutons appropriés
-            for (String parametre : popupParameters.keySet()) {
-                switch (parametre) {
-                    case "Taille":
-                        for (Button bouton : boutonsTaille) {
-                            if (bouton.getText().toString().equals(popupParameters.get(parametre))) {
-                                mettreEnSurbrillance(boutonsTaille, bouton);
-                            }
-                        }
-                        break;
-                    case "Détails":
-                        for (Button bouton : boutonsDetails) {
-                            if (bouton.getText().toString().equals(popupParameters.get(parametre))) {
-                                mettreEnSurbrillance(boutonsDetails, bouton);
-                            }
-                        }
-                        break;
-                    case "Détails2":
-                        for (Button bouton : boutonsDetails2) {
-                            if (bouton.getText().toString().equals(popupParameters.get(parametre))) {
-                                mettreEnSurbrillance(boutonsDetails2, bouton);
-                            }
-                        }
-                        break;
-                    case "Commentaire":
-                        commentaireInputLayout.getEditText().setText(popupParameters.get(parametre));
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + parametre);
-                }
+            highlightButtons("Taille", popupParameters, boutonsTaille);
+            highlightButtons("Détails", popupParameters, boutonsDetails);
+            highlightButtons("Détails2", popupParameters, boutonsDetails2);
+
+            if (popupParameters.containsKey("Photo")) {
+                displayPhotoFromSharedPreferences(displayPhoto);
+            }
+
+            if (popupParameters.containsKey("Commentaire")) {
+                setCommentaireText(commentaire, popupParameters.get("Commentaire"));
             }
         }
 
-        // Créer un layout pour les boutons "Pointer" et "Valider"
-        LinearLayout layoutBoutonsValider = createButtonLayout(null, getString(R.string.dechetPoint), getString(R.string.dechetValidate));
-        layout.addView(layoutBoutonsValider);
-
-        // Définir la largeur et la hauteur de l'AlertDialog
-        int dialogWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
-        int dialogHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.8);
-
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.addView(layout);
-
-        // Configurer le layout personnalisé pour l'AlertDialog
-        builder.setView(scrollView);
-        AlertDialog alertDialog = builder.create();
-
-        // Afficher l'AlertDialog
-        alertDialog.show();
-
-        // Appliquer la largeur et la hauteur à l'AlertDialog
-        alertDialog.getWindow().setLayout(dialogWidth, dialogHeight);
-        // Récupérer le bouton "Valider" pour pouvoir ajouter un clic
-        Button boutonValider = (Button) layoutBoutonsValider.getChildAt(1);
         // Ajouter un clic pour le bouton "Valider"
-        boutonValider.setOnClickListener(v -> {
-            onValiderClick(alertDialog);
+        valider.setOnClickListener(v -> {
             popupParameters.put("Taille", getBoutonSelectionne(boutonsTaille));
             popupParameters.put("Détails", getBoutonSelectionne(boutonsDetails));
             popupParameters.put("Détails2", getBoutonSelectionne(boutonsDetails2));
-            popupParameters.put("Commentaire", commentaireInputLayout.getEditText().getText().toString());
+            popupParameters.put("Commentaire", commentaire.getText().toString());
             if (sharedPreferences != null) {
                 sharedPreferences.edit().putString("image_path", "").apply();
             }
+            onValiderClick();
+            // Rendre le layout de la carte visible
+            layoutMap.setVisibility(View.VISIBLE);
+            // Rendre le layout du popup invisible
+            layoutPopup.setVisibility(View.GONE);
         });
-        // Récupérer le bouton "Pointer" pour pouvoir ajouter un clic
-        Button boutonPointer = (Button) layoutBoutonsValider.getChildAt(0);
+
         // Ajouter un clic pour le bouton "Pointer"
-        boutonPointer.setOnClickListener(v -> {
+        pointer.setOnClickListener(v -> {
             // Activez le mode "Pointer" et masquez le popup
             modePointer = true;
             popupParameters.put("Taille", getBoutonSelectionne(boutonsTaille));
             popupParameters.put("Détails", getBoutonSelectionne(boutonsDetails));
             popupParameters.put("Détails2", getBoutonSelectionne(boutonsDetails2));
-            popupParameters.put("Commentaire", commentaireInputLayout.getEditText().getText().toString());
-            alertDialog.dismiss();
+            popupParameters.put("Commentaire", commentaire.getText().toString());
+            // Rendre le layout de la carte visible
+            layoutMap.setVisibility(View.VISIBLE);
+            // Rendre le layout du popup invisible
+            layoutPopup.setVisibility(View.GONE);
         });
 
     }
 
-    // Méthode utilitaire pour créer un layout de boutons
-    private LinearLayout createButtonLayout(List<Button> buttonsList, String... buttonLabels) {
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
+    // Méthode générique pour gérer le clic des boutons du popup
+    private void configurerBouton(Button bouton, List<Button> boutons, int messageResId, int couleurResId) {
+        bouton.setOnClickListener(v -> {
+            mettreEnSurbrillance(boutons, bouton);
+            afficherToast(getString(messageResId), couleurResId);
+        });
+    }
 
-        for (String label : buttonLabels) {
-            Button button = new Button(this);
-            button.setText(label);
-            button.setOnClickListener(v -> {
-                // Appeler la méthode pour gérer le bouton
-                mettreEnSurbrillance(buttonsList, button);
-
-                afficherToast(label, R.color.green);
-            });
-
-            layout.addView(button);
-
-            if (buttonsList != null) {
-                buttonsList.add(button);
+    private void highlightButtons(String parameter, Map<String, String> parameters, List<Button> buttons) {
+        if (parameters.containsKey(parameter)) {
+            String paramValue = parameters.get(parameter);
+            for (Button button : buttons) {
+                if (button.getText().toString().equals(paramValue)) {
+                    mettreEnSurbrillance(buttons, button);
+                    break;
+                }
             }
         }
-
-        return layout;
     }
 
-    // Méthode utilitaire pour créer un TextInputLayout avec un champ de saisie pour le commentaire
-    private TextInputLayout createCommentInputLayout() {
-        TextInputLayout commentaireInputLayout = new TextInputLayout(this);
-        EditText commentaireEditText = new EditText(this);
-        commentaireEditText.setHint("Commentaire");
-        InputFilter[] filters = new InputFilter[1];
-        filters[0] = new InputFilter.LengthFilter(500);
-        commentaireEditText.setFilters(filters);
-        commentaireInputLayout.addView(commentaireEditText);
-        return commentaireInputLayout;
+    private void displayPhotoFromSharedPreferences(ImageView displayPhoto) {
+        sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
+        String imagePath = sharedPreferences.getString("image_path", "");
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        displayPhoto.setImageBitmap(bitmap);
     }
 
-    private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
-        // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
-        for (Button bouton : boutons) {
-            bouton.setBackground(null);
-        }
-
-        // Mettre en surbrillance le bouton cliqué
-        boutonClique.setBackgroundColor(getResources().getColor(R.color.highlightColor));
+    private void setCommentaireText(EditText commentaire, String commentaireText) {
+        commentaire.setText(commentaireText);
     }
 
     // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
-    private void onValiderClick(AlertDialog alert) {
-        Dechet dernierDechetClique=null;
-        String tailleSelectionnee = getBoutonSelectionne(boutonsTaille);
-        String detailsSelectionnes = getBoutonSelectionne(boutonsDetails) + ", " + getBoutonSelectionne(boutonsDetails2);
-        String commentaire = getCommentaire();
+    private void onValiderClick() {
+        Dechet dernierDechetClique = null;
+        String tailleSelectionnee = popupParameters.get("Taille");
+        String detailsSelectionnes = popupParameters.get("Details") + ", " + popupParameters.get("Details2");
+        String commentaire = popupParameters.get("Commentaire");
         String position = getPosition();
 
         // Faire quelque chose avec les informations récupérées
@@ -536,7 +578,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // Ajouter le nouveau déchet à la liste
         int nouvelId = 0; // ID temporaire
-        Dechet nouveauDechet = new Dechet(nouvelId, lastClickedLatitude, lastClickedLongitude,tailleSelectionnee ,detailsSelectionnes);
+        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, detailsSelectionnes);
         listeDechets.add(nouveauDechet);
         // Stocker le dernier déchet cliqué
         dernierDechetClique = nouveauDechet;
@@ -544,9 +586,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
         afficherAlerte(getString(R.string.dechetWarning));
-        // Fermer le popup
-        fermerPopup(alert);
+        popupParameters = null;
     }
+
+    private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
+        // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
+        for (Button bouton : boutons) {
+            bouton.setBackgroundColor(getResources().getColor(R.color.light_gray));
+            bouton.setSelected(false);
+        }
+
+        // Mettre en surbrillance le bouton cliqué
+        boutonClique.setBackgroundColor(getResources().getColor(R.color.green));
+        // Ajoute un etat pour savoir rapidement si le bouton est selectionne
+        boutonClique.setSelected(true);
+    }
+
     // Méthode pour afficher une boîte de dialogue d'alerte standard
     private void afficherAlerte(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -571,40 +626,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 })
                 .show();
     }
-    // Ajouter la methode pour fermer le popup
-    private void fermerPopup(AlertDialog alertDialog) {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-        }
-    }
+
     private String getPosition() {
         return getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.coma) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude;
-    }
-
-
-    // Méthode utilitaire pour récupérer le texte du champ de commentaire
-    // je ne sers a rien pour toujours et a jamais
-    private String getCommentaire() {
-        // TextInputLayout commentaireInputLayout = findViewById(R.id.commentaireInputLayout);
-        //  EditText commentaireEditText = commentaireInputLayout.findViewById(R.id.commentaireEditText);
-        return ""; //commentaireEditText.getText().toString();
     }
 
     // Méthode pour récupérer le texte du bouton sélectionné
     private String getBoutonSelectionne(List<Button> boutons) {
         for (Button bouton : boutons) {
-            ColorDrawable background = (ColorDrawable) bouton.getBackground();
-            int colorId = 0;
-            if (background != null) {
-                colorId = background.getColor();
-            }
-            int colorCible = ContextCompat.getColor(this, R.color.highlightColor);
-            if (colorId == colorCible) {
+            // Vérifier si le bouton est sélectionné
+            if (bouton.isSelected()) {
                 return bouton.getText().toString();
             }
         }
         return "";
     }
+
     private void afficherToast(String texteNotification, int couleurBackground) {
         // Créer un layout personnalisé pour le Toast
         LinearLayout toastLayout = new LinearLayout(this);
@@ -628,6 +665,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toast.show();
     }
 
+    //Méthode qui permet d'ajouter en base de données un déchet créé sur la map
     protected void addZoneDechet(Dechet unDechet){
 
         try {
@@ -702,7 +740,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         },
                 new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {// code à exécuter lorsqu'une erreur de communication // avec le serveur est détectée
+                    public void onErrorResponse(VolleyError error) {// code à exécuter lorsqu'une erreur de communication avec le serveur est détectée
+                        Log.e("erreur récupération des déchets",error.getMessage());
                     }
                 }) {
         };
