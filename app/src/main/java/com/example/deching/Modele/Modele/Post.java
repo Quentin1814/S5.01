@@ -18,8 +18,8 @@ public class Post {
         this.lieu = lieu;
         this.datePost = datePost;
         this.estVisible = estVisible;
-        this.mesCommentaires = new ArrayList<Commentaire>();
-        this.mesImages = new ArrayList<Image>();
+        this.mesCommentaires = new ArrayList<>();
+        this.mesImages = new ArrayList<>();
     }
 
     public String getId() {

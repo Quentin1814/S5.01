@@ -6,8 +6,6 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.deching.R;
-
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {

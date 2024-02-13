@@ -1,13 +1,10 @@
 package com.example.deching;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 
-import com.example.deching.R;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class HomePageActivity extends AppCompatActivity {
     private ImageButton boutonLogo;
