@@ -11,7 +11,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <ImageButton
             android:id="@+id/imageButtonLogo"
@@ -20,13 +21,13 @@
             android:layout_weight="0"
             android:background="@color/white"
             android:contentDescription="@string/logo_de_l_application"
-            android:src="@android:drawable/btn_star" />
+            android:src="@drawable/ic_launcher_foreground" />
 
         <TextView
             android:id="@+id/textViewAppName"
             android:layout_width="wrap_content"
-            android:layout_height="47dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:text="@string/nom_app"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:typeface="normal" />
