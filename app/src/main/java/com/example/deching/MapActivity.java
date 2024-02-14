@@ -31,11 +31,8 @@ import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
 import com.example.deching.Modele.Modele.Evenement;
@@ -52,7 +49,6 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,8 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
+import java.util.Objects;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -75,30 +70,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     //creation d'un dechet instantane pour la suppression d'un dechet reference
 
 
-    private final List<Dechet> listeDechets = new ArrayList<Dechet>();
+    private final List<Dechet> listeDechets = new ArrayList<>();
 
-    private ArrayList<Dechet> listeDechetsInit = new ArrayList<Dechet>();
+    private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
     // creation d'un evenement instantane
-    public static List<Evenement> listeEvenements = new ArrayList<>();
+    protected static final List<Evenement> listeEvenements = new ArrayList<>();
     //pour recuperer les imformation du derniere point creer afin de creer un evenement
 
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
 
-    private final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
+    private static final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
     // Créer un LinearLayout pour centrer l'ImageView
 
 
     private SharedPreferences sharedPreferences;
     ImageButton boutonPosition;
-    private LinearLayout layoutImageView;
-    private ImageView imageView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Button boutonSignaler;
         ImageButton boutonEvent;
-        ImageButton boutonMap;
         ImageButton boutonHome;
         ImageButton boutonLogo;
 
@@ -115,17 +106,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         layoutPopup.setVisibility(View.GONE);
 
         // Chargement des données de déchets récupérées dasn le base de données
-        getAllZoneDechet(new VolleyCallback() {
-            @Override
-            public void onSuccess(ArrayList<Dechet> reponse) {
-                listeDechetsInit.addAll(reponse);
-                Log.d("initialisation de la liste de déchet",listeDechetsInit.toString());
-            }
-        });
+        getAllZoneDechet(listeDechetsInit::addAll);
 
-        // Initialisation de la liste de déchets (simulée)
-        listeDechets.add(new Dechet(1, 48.858844, 2.294350, "moyen","Déchet 1"));
-        listeDechets.add(new Dechet(2, 48.860000, 2.297000,"grand" ,"Déchet 2"));
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
             Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
@@ -138,7 +120,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intentEvent = new Intent(MapActivity.this, EvenementActivity.class);
             startActivity(intentEvent);
         });
-        boutonMap = findViewById(R.id.imageButtonMap);
 
         boutonLogo = findViewById(R.id.imageButtonLogo);
         boutonLogo.setOnClickListener(v -> {
@@ -273,12 +254,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
             googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
         }
-        // Ajoute un marqueur à des coordonnées fixes
-        LatLng positionFixe = new LatLng(48.858844, 2.294350);
-        googleMap.addMarker(new MarkerOptions().position(positionFixe).title("Marqueur Fixe"));
-
-        // Centrer la caméra sur le marqueur ajouté
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionFixe, 10));
 
         // Centrer la caméra sur la première position (si elle existe)
         if (!listeDechets.isEmpty()) {
@@ -339,9 +314,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     // Méthode pour afficher des marqueurs sur la carte
     private void afficherMarqueursSurCarte() {
-        Log.d("MapActivity", "afficherMarqueursSurCarte appelée");
         if (googleMap != null) {
-            Log.d("MapActivity", "googleMap non nul, effacement des marqueurs");
             googleMap.clear(); // Efface les marqueurs existants
 
             // Ajouter des marqueurs pour chaque déchet dans la liste mise à jour
@@ -377,7 +350,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             // Récupérer le chemin de l'image de SharedPreferences
             sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
-            String imagePath = sharedPreferences.getString("image_path", "");
+            String imagePath = sharedPreferences.getString(getString(R.string.image_path), "");
 
             // Utiliser le chemin de l'image pour afficher l'image
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
@@ -510,9 +483,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             popupParameters.put("Détails2", getBoutonSelectionne(boutonsDetails2));
             popupParameters.put("Commentaire", commentaire.getText().toString());
             if (sharedPreferences != null) {
-                sharedPreferences.edit().putString("image_path", "").apply();
+                sharedPreferences.edit().putString(getString(R.string.image_path), "").apply();
             }
             onValiderClick();
+            reinitialiserBoutons(boutonsTaille);
+            reinitialiserBoutons(boutonsDetails);
+            reinitialiserBoutons(boutonsDetails2);
+            displayPhoto.setImageResource(0);
+            commentaire.setText("");
             // Rendre le layout de la carte visible
             layoutMap.setVisibility(View.VISIBLE);
             // Rendre le layout du popup invisible
@@ -557,7 +535,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void displayPhotoFromSharedPreferences(ImageView displayPhoto) {
         sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
-        String imagePath = sharedPreferences.getString("image_path", "");
+        String imagePath = sharedPreferences.getString(getString(R.string.image_path), "");
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
         displayPhoto.setImageBitmap(bitmap);
     }
@@ -568,7 +546,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
     private void onValiderClick() {
-        Dechet dernierDechetClique = null;
         String tailleSelectionnee = popupParameters.get("Taille");
         String detailsSelectionnes = popupParameters.get("Details") + ", " + popupParameters.get("Details2");
         String commentaire = popupParameters.get("Commentaire");
@@ -578,11 +555,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        int nouvelId = 0; // ID temporaire
         Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, detailsSelectionnes);
         listeDechets.add(nouveauDechet);
         // Stocker le dernier déchet cliqué
-        dernierDechetClique = nouveauDechet;
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
@@ -592,15 +567,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
         // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
-        for (Button bouton : boutons) {
-            bouton.setBackgroundColor(getResources().getColor(R.color.light_gray));
-            bouton.setSelected(false);
-        }
+        reinitialiserBoutons(boutons);
 
         // Mettre en surbrillance le bouton cliqué
         boutonClique.setBackgroundColor(getResources().getColor(R.color.green));
         // Ajoute un etat pour savoir rapidement si le bouton est selectionne
         boutonClique.setSelected(true);
+    }
+
+    private void reinitialiserBoutons(List<Button> boutons) {
+        for (Button bouton : boutons) {
+            bouton.setBackgroundColor(getResources().getColor(R.color.light_gray));
+            bouton.setSelected(false);
+        }
     }
 
     // Méthode pour afficher une boîte de dialogue d'alerte standard
@@ -684,66 +663,51 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             objetJSON.put("idCollecte","2");
             objetJSON.put("idUtilisateur","1");
 
-            Log.d("JSON",objetJSON.toString());
-
             String url = "https://deching.alwaysdata.net/actions/Dechet.php";
-            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url, objetJSON, reponse -> {// code à exécuter une fois les données chargées
-                Log.d("retourHTTPAddDechet",reponse.toString());
+            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url, objetJSON, reponse -> {
             },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {// code à exécuter lorsqu'une erreur de communication // avec le serveur est détectée
-                        }
-                    }) {
+                error -> {
+                }) {
             };
             queue.add(jsonRequest);
-            Log.d("JsonRequest",jsonRequest.toString());
-        }catch (Exception exception){
-            Log.d("erreurHttp",exception.getMessage());
+        } catch (Exception exception){
+            Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
         }
 
     }
     //Méthode qui permet de récupérer tous les déchets enregistrés en base de données sous forme de collection
     protected void getAllZoneDechet(final VolleyCallback callback){
-
         RequestQueue queue;
         queue = Volley.newRequestQueue(this);
         queue.start();
 
-        ArrayList<Dechet> dechetsRecuperes = new ArrayList<Dechet>();
+        ArrayList<Dechet> dechetsRecuperes = new ArrayList<>();
 
         String url = "https://deching.alwaysdata.net/actions/Dechet.php";
-        JsonArrayRequest jsonRequest = new JsonArrayRequest( url, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray reponse) {// code à exécuter une fois les données chargées
-                Log.d("retourHTTPGetALLDechet",reponse.toString());
-                for(int i=0;i < reponse.length();i++){
-                    try {
-                        JSONObject unDechetJSON = reponse.getJSONObject(i);
-                        int id = unDechetJSON.getInt("id");
-                        double latitude = unDechetJSON.getDouble("latitude");
-                        double longitude = unDechetJSON.getDouble("longitude");
-                        String taille = unDechetJSON.getString("taille");
-                        String description = unDechetJSON.getString("description");
+        JsonArrayRequest jsonRequest = new JsonArrayRequest( url, reponse -> {
+            // code à exécuter une fois les données chargées
+            for(int i=0;i < reponse.length();i++){
+                try {
+                    JSONObject unDechetJSON = reponse.getJSONObject(i);
+                    int id = unDechetJSON.getInt("id");
+                    double latitude = unDechetJSON.getDouble("latitude");
+                    double longitude = unDechetJSON.getDouble("longitude");
+                    String taille = unDechetJSON.getString("taille");
+                    String description = unDechetJSON.getString("description");
 
-                        Dechet unDechet = new Dechet(id,latitude,longitude,taille,description);
-                        Log.d("dechetRecup"+i,unDechet.toString());
+                    Dechet unDechet = new Dechet(id,latitude,longitude,taille,description);
 
-                        dechetsRecuperes.add(unDechet);
-                        Log.d("dechetsRecup",dechetsRecuperes.toString());
+                    dechetsRecuperes.add(unDechet);
 
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
                 }
-                callback.onSuccess(dechetsRecuperes);
             }
+            callback.onSuccess(dechetsRecuperes);
         },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {// code à exécuter lorsqu'une erreur de communication avec le serveur est détectée
-                        Log.e("erreur récupération des déchets",error.getMessage());
-                    }
+                error -> {
+                    // code à exécuter lorsqu'une erreur de communication avec le serveur est détectée
+                    Log.e("erreur récupération des déchets", Objects.requireNonNull(error.getMessage()));
                 }) {
         };
         queue.add(jsonRequest);

@@ -30,10 +30,10 @@ public class Utilisateur {
         this.tel = tel;
         this.type = type;
         this.photoProfil = photoProfil;
-        this.mesEvenementsParticipes = new ArrayList<Evenement>();
-        this.mesBadges = new ArrayList<Badge>();
-        this.mesContacts = new ArrayList<Utilisateur>();
-        this.mesDechets = new ArrayList<Dechet>();
+        this.mesEvenementsParticipes = new ArrayList<>();
+        this.mesBadges = new ArrayList<>();
+        this.mesContacts = new ArrayList<>();
+        this.mesDechets = new ArrayList<>();
     }
 
     public Utilisateur(int id, String nom, String prenom, Date dateNaiss, String mail, String mdp, String tel, String type, Blob photoProfil) {
@@ -46,10 +46,10 @@ public class Utilisateur {
         this.tel = tel;
         this.type = type;
         this.photoProfil = photoProfil;
-        this.mesEvenementsParticipes = new ArrayList<Evenement>();
-        this.mesBadges = new ArrayList<Badge>();
-        this.mesContacts = new ArrayList<Utilisateur>();
-        this.mesDechets = new ArrayList<Dechet>();
+        this.mesEvenementsParticipes = new ArrayList<>();
+        this.mesBadges = new ArrayList<>();
+        this.mesContacts = new ArrayList<>();
+        this.mesDechets = new ArrayList<>();
     }
 
     public int getId() {
