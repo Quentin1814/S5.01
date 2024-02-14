@@ -337,6 +337,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     afficherToast(getString(R.string.dechetDelete), R.color.red);
                 })
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                //methode pour partager un dechet
+                .setNeutralButton("Partager", (dialog, which) -> {
+                    String uri = "http://deching/dechet?id=" + dechet.getId();
+                    Log.d("lien",uri);
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Détails du Déchet");
+                    intent.putExtra(Intent.EXTRA_TEXT, uri);
+                    startActivity(Intent.createChooser(intent, "Partager via"));
+                })
                 .show();
     }
 
