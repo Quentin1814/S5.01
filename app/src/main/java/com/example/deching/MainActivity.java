@@ -1,17 +1,20 @@
 package com.example.deching;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,80 +23,83 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    private EditText usernameEditText;
+    private EditText passwordEditText;
+    private Button connectBtn;
+    private TextView createAccountBtn;
     private TextView errorConnectAccountTextView;
+
     private String username;
     private String password;
-    private DatabaseManager databaseManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EditText passwordEditText;
-        EditText usernameEditText;
-        TextView createAccountBtn;
-        Button connectBtn;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        errorConnectAccountTextView = findViewById(R.id.errorConnectAccountTextView);
         usernameEditText = findViewById(R.id.usernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         connectBtn = findViewById(R.id.connectBtn);
         createAccountBtn = findViewById(R.id.createAccountBtn);
+        errorConnectAccountTextView = findViewById(R.id.errorConnectAccountTextView);
 
-        databaseManager = new DatabaseManager(getApplicationContext());
-
-        connectBtn.setOnClickListener(v -> {
-            username = usernameEditText.getText().toString();
-            password = passwordEditText.getText().toString();
-
-            connectUser();
+        connectBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                username = usernameEditText.getText().toString();
+                password = passwordEditText.getText().toString();
+                connectUser();
+            }
         });
 
-        createAccountBtn.setOnClickListener(v -> {
-            Intent createAccountActivity = new Intent(getApplicationContext(), CreateAccountActivity.class);
-            startActivity(createAccountActivity);
-            finish();
+        createAccountBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Rediriger vers l'activité de création de compte si on n'a pas de compte
+                Intent intent = new Intent(MainActivity.this, CreateAccountActivity.class);
+                startActivity(intent);
+            }
         });
     }
 
-    public void onApiResponse(JSONObject response) {
-        boolean success;
-        String error;
+    private void connectUser() {
+        String url = "https://deching.alwaysdata.net/connxionUser/connectUser.php";
 
+        JSONObject postData = new JSONObject();
         try {
-            success = response.getBoolean("success");
-
-            if (success) {
-                Intent interfaceActivity = new Intent(getApplicationContext(), InterfaceActivity.class);
-                interfaceActivity.putExtra("username", username);
-                startActivity(interfaceActivity);
-                finish();
-            } else {
-                error = response.getString("error");
-                errorConnectAccountTextView.setVisibility(View.VISIBLE);
-                errorConnectAccountTextView.setText(error);
-            }
-
+            postData.put("username", username);
+            postData.put("userPassword", password);
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
         }
-    }
 
-    public void connectUser() {
-        // 10.0.2.2 correspond à localhost dans google chrome
-        String url = "http://10.0.2.2/Test/actions/connectUser.php";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, postData,
+                response -> {
+                    Log.d("api",response.toString());
+                    try {
+                        boolean success = response.getBoolean("success");
 
-        Map<String, String> params = new HashMap<>();
-        params.put("username", username);
-        params.put("password", password);
-        JSONObject parameters = new JSONObject(params);
+                        if (success) {
+                            // Connexion réussie, rediriger vers MapActivity
+                            Log.d("success","Connexion reussie");
+                            Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // Connexion échouée, afficher un message d'erreur
+                            errorConnectAccountTextView.setVisibility(View.VISIBLE);
+                            errorConnectAccountTextView.setText("Connexion échouée. Veuillez vérifier vos identifiants.");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d("API Connection",response.toString());
+                        Toast.makeText(MainActivity.this, "Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> Log.e("API Connection", "Erreur lors de la connexion à l'API", error));
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, parameters, response -> {
-            onApiResponse(response);
-            Toast.makeText(getApplicationContext(), "OPERATION SUCCESSFUL", Toast.LENGTH_LONG).show();
-        }, error -> Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show());
 
-        databaseManager.queue.add(jsonObjectRequest);
+        // Ajout de la requête à la file d'attente
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 }
