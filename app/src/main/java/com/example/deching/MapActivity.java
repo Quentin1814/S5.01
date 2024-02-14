@@ -52,6 +52,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -572,6 +573,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
         afficherAlerte(getString(R.string.dechetWarning));
         popupParameters = null;
+        // creation d'un evenement quand on clique sur le bouton valider
+        // recuperer la date actuelle lors de la creation
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // Les mois commencent à 0, donc ajouter 1
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        // Créer un objet JSON avec les données de l'événement
+        JSONObject eventData = new JSONObject();
+        try {
+            eventData.put("id", "event "+ nouveauDechet.getId());
+            eventData.put("nom", "Recolting "+ nouveauDechet.getId());
+            eventData.put("description", detailsSelectionnes+" "+tailleSelectionnee);
+            eventData.put("lieu", position);
+            eventData.put("date", day + "/" + month + "/" + year);
+            eventData.put("photo",sharedPreferences );
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // Envoyer les données à l'API via une requête POST avec Volley
+        String url = "https://deching.alwaysdata.net/actions/Evenement.php";
+        creerEvenement(url, eventData);
+    }
+
+    // Méthode pour envoyer les données de l'événement à votre API avec Volley
+    private void creerEvenement(String url, JSONObject data) {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data,
+                response -> {
+                    // Traitement de la réponse de l'API en cas de succès
+                    Log.d("evenement", "Événement créé avec succès");
+
+                },
+                error -> {
+                    // Gérer les erreurs de l'API en cas d'échec
+                    Log.e("evenement", "Erreur lors de la création de l'événement : " + error.getMessage());
+
+                });
+
     }
 
     private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
@@ -596,22 +636,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> {
-                    // Code à exécuter lorsque l'utilisateur clique sur OK
-                    /*
-                        Evenement nouvelEvenement = new Evenement(
-                                0,
-                                " Recolting",
-                                "Événement associé au déchet : " + dernierDechetClique.description,
-                                 1,
-                                lastClickedLatitude+" "+lastClickedLongitude,
-                                "00/00/0000"
-                        );
 
-                        // Ajouter le nouvel événement à la liste
-                        listeEvenements.add(nouvelEvenement);
-
-                        afficherToast("Recolting ajouté avec succès", R.color.green);
-                     */
                 })
                 .show();
     }
