@@ -1,5 +1,7 @@
 package com.example.deching.Modele.Modele;
 
+import android.util.EventLogTags;
+
 import java.sql.Blob;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -10,6 +12,9 @@ public class Utilisateur {
     private String prenom;//Prenom de l'utilisateur
     private Date dateNaiss;//Date de naissance de l'utilisateur
     private String mail;//Adresse mail de l'utilisateur
+
+
+
     private String username;//Nom d'utilisateur choisi par celui-ci et unique
     private String mdp;//Mot de passe de l'utilisateur pour se connecter
     private String tel;//Numéro de téléphone de l'utilisateur
@@ -20,7 +25,10 @@ public class Utilisateur {
     private ArrayList<Utilisateur> mesContacts;//Ensemble des utilisateurs qui sont en contact avec l'utilisateur
     private ArrayList<Dechet> mesDechets;//Ensemble des déchets qui ont été signalé par l'utilisateur
 
-    public Utilisateur(String nom, String prenom, Date dateNaiss, String mail, String mdp, String tel, String type, Blob photoProfil) {
+
+
+    private String Description; // description utilisateur
+    public Utilisateur(String nom, String prenom, Date dateNaiss, String mail, String mdp, String tel, String type, Blob photoProfil, String description){
         this.id=0;
         this.nom = nom;
         this.prenom = prenom;
@@ -34,9 +42,10 @@ public class Utilisateur {
         this.mesBadges = new ArrayList<>();
         this.mesContacts = new ArrayList<>();
         this.mesDechets = new ArrayList<>();
+        this.Description= description;
     }
 
-    public Utilisateur(int id, String nom, String prenom, Date dateNaiss, String mail, String mdp, String tel, String type, Blob photoProfil) {
+    public Utilisateur(int id, String nom, String prenom, Date dateNaiss, String mail, String mdp, String tel, String type, Blob photoProfil, String description) {
         this.id=id;
         this.nom = nom;
         this.prenom = prenom;
@@ -50,6 +59,7 @@ public class Utilisateur {
         this.mesBadges = new ArrayList<>();
         this.mesContacts = new ArrayList<>();
         this.mesDechets = new ArrayList<>();
+        this.Description= description;
     }
 
     public int getId() {
@@ -154,5 +164,19 @@ public class Utilisateur {
 
     public void setMesDechets(ArrayList<Dechet> mesDechets) {
         this.mesDechets = mesDechets;
+    }
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public String getDescription() {
+        return Description;
+    }
+
+    public void setDescription(String description) {
+        Description = description;
     }
 }

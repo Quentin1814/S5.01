@@ -35,8 +35,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
-import com.example.deching.utilitaire.VolleyCallback;
-import com.example.deching.R;
+import com.example.deching.utilitaire.VolleyCallbackDechet;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -686,7 +685,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
     //Méthode qui permet de récupérer tous les déchets enregistrés en base de données sous forme de collection
-    protected void getAllZoneDechet(final VolleyCallback callback){
+    protected void getAllZoneDechet(final VolleyCallbackDechet callback){
         RequestQueue queue;
         queue = Volley.newRequestQueue(this);
         queue.start();

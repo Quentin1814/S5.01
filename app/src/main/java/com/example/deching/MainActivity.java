@@ -11,16 +11,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.deching.Modele.Modele.Utilisateur;
+import com.example.deching.utilitaire.SingletonUtilisateur;
+import com.example.deching.utilitaire.VolleyCallbackDechet;
+import com.example.deching.utilitaire.VolleyCallbackUtilisateur;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Blob;
+import java.sql.Date;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String username;
     private String password;
+    private Utilisateur utilisateurConnecte;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 username = usernameEditText.getText().toString();
                 password = passwordEditText.getText().toString();
                 connectUser();
+
             }
         });
 
@@ -83,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                         if (success) {
                             // Connexion réussie, rediriger vers MapActivity
                             Log.d("success","Connexion reussie");
+                            initUtilisateurConnecte();
                             Intent intent = new Intent(MainActivity.this, MapActivity.class);
                             startActivity(intent);
                             finish();
@@ -101,5 +109,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Ajout de la requête à la file d'attente
         Volley.newRequestQueue(this).add(jsonObjectRequest);
+    }
+
+
+    private void initUtilisateurConnecte(){
+
+        SingletonUtilisateur utilisateur= SingletonUtilisateur.getInstance(username);
     }
 }
