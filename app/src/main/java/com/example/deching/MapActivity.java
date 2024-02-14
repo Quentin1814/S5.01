@@ -33,6 +33,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
 import com.example.deching.Modele.Modele.Evenement;
@@ -712,6 +713,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }) {
         };
         queue.add(jsonRequest);
+    }
+    //Méthode qui permet de supprimer un déchet enregistré en base de données via son identifiant
+    protected void deleteZoneDechet(Dechet unDechet){
+
+        try {
+            RequestQueue queue;
+            queue = Volley.newRequestQueue(this);
+            queue.start();
+
+            String url = "https://deching.alwaysdata.net/actions/Dechet.php?id="+unDechet.getId();
+            StringRequest stringRequest = new StringRequest(Request.Method.DELETE,url, reponse -> {
+            },
+                    error -> {
+                    }) {
+            };
+            queue.add(stringRequest);
+        } catch (Exception exception){
+            Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
+        }
+
     }
 }
 
