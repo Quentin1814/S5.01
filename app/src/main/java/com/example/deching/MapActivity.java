@@ -555,9 +555,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, detailsSelectionnes);
+        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
         addZoneDechet(nouveauDechet);
+        afficherMarqueursSurCarte();
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
