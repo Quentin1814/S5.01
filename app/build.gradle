@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id 'com.android.application'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
@@ -29,6 +31,10 @@ android {
     }
 }
 
+def localProperties = new Properties()
+//localProperties.load(new FileInputStream(file('local.properties'))) // C:\Users\edujardin\Desktop\S6\app doit aller C:\Users\edujardin\Desktop\S6
+localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+// Eduardo: moi ca va dans le bon dossier mais pas dans le siens car : = raciste
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -44,6 +50,7 @@ dependencies {
     implementation "androidx.sqlite:sqlite:2.1.0"
     implementation "androidx.room:room-runtime:2.3.0"
     implementation 'com.android.volley:volley:1.2.1'
+    implementation fileTree(dir: localProperties.getProperty("sdk.dir") + '/platforms/android-34', include: ['*.aar', '*.jar'], exclude: [''])
     annotationProcessor "androidx.room:room-compiler:2.3.0"
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.google.code.gson:gson:2.8.7'
