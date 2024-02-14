@@ -299,6 +299,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Méthode pour supprimer un déchet de la liste (simulée)
     private void supprimerDechet(Dechet dechet) {
         listeDechets.remove(dechet);
+        deleteZoneDechet(dechet);
         // Mettez à jour l'affichage sur la carte
         afficherMarqueursSurCarte();
     }
