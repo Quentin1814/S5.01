@@ -1,4 +1,4 @@
-package com.example.dechingv1;
+package com.example.deching;
 
 import org.junit.Test;
 

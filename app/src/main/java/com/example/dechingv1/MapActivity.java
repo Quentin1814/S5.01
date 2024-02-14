@@ -1,7 +1,7 @@
-package com.example.dechingv1;
-import  com.example.dechingv1.Modele.Dechet;
-import  com.example.dechingv1.Modele.Utilisateur;
-import  com.example.dechingv1.Modele.Evenement;
+package com.example.deching;
+import  com.example.deching.Modele.Dechet;
+import  com.example.deching.Modele.Utilisateur;
+import  com.example.deching.Modele.Evenement;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;

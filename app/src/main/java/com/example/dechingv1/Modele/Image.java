@@ -1,4 +1,4 @@
-package com.example.dechingv1.Modele;
+package com.example.deching.Modele;
 
 public class Image {
     private String id;//Id de l'image dans la base de données

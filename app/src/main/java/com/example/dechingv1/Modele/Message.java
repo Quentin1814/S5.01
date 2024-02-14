@@ -1,4 +1,4 @@
-package com.example.dechingv1;
+package com.example.deching;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

@@ -1,4 +1,4 @@
-package com.example.dechingv1;
+package com.example.deching;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.example.dechingv1.Modele.Evenement;
+import com.example.deching.Modele.Evenement;
 
 import java.util.List;
 
