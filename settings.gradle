@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DechingV1"
+rootProject.name = "Deching"
 include ':app'

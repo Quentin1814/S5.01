@@ -1,0 +1,42 @@
+package com.example.deching;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class HomePageActivity extends AppCompatActivity {
+    private ImageButton boutonLogo;
+    private ImageButton boutonHome;
+    private ImageButton boutonMap;
+    private ImageButton boutonAddPost;
+    private ImageButton boutonEvent;
+    private ImageButton boutonProfile;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home_page);
+
+        boutonMap=(ImageButton)findViewById(R.id.imageButtonMap);
+        boutonMap.setOnClickListener(v -> {
+            Intent intentMap=new Intent(HomePageActivity.this, MapActivity.class);
+            startActivity(intentMap);
+        });
+        boutonEvent = (ImageButton) findViewById(R.id.imageButtonEvent);
+        boutonEvent.setOnClickListener(v -> {
+            // Ajouter le code pour naviguer vers l'activité Evenement
+            Intent intentEvent = new Intent(HomePageActivity.this, EvenementActivity.class);
+            startActivity(intentEvent);
+        });
+        boutonProfile=(ImageButton)findViewById(R.id.imageButtonProfile);
+        boutonProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentEvent = new Intent(HomePageActivity.this, ProfilActivity.class);
+                startActivity(intentEvent);
+            }
+        });
+    }
+}
