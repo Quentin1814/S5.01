@@ -7,9 +7,12 @@ public class Dechet {
     private double longitude;//Longitude de la position du déchet
     private String taille;//Taille du déchet : grand, moyen, petit
     private String description;//Description optionnelle ajoutée lors de la description d'un déchet
+    private Utilisateur monUtilisateur;//Id de l'utilisateur qui a signalé le déchet
+    private Evenement monEvenement;//Evenement associé à ce déchet
 
 
-    public Dechet( double latitude, double longitude, String taille, String description) {
+    public Dechet(double latitude, double longitude, String taille, String description) {
+        this.monUtilisateur = monUtilisateur;
         this.id=0;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -23,6 +26,7 @@ public class Dechet {
         this.longitude = longitude;
         this.taille=taille;
         this.description = description;
+        this.monUtilisateur = monUtilisateur;
     }
 
     public int getId(){

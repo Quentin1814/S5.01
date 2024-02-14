@@ -320,7 +320,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             // Ajouter des marqueurs pour chaque déchet dans la liste mise à jour
             for (Dechet dechet : listeDechets) {
                 LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.getDescription()));
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
             }
         }
     }
@@ -557,7 +557,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Ajouter le nouveau déchet à la liste
         Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, detailsSelectionnes);
         listeDechets.add(nouveauDechet);
-        // Stocker le dernier déchet cliqué
+        addZoneDechet(nouveauDechet);
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
