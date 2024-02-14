@@ -1,17 +1,22 @@
 package com.example.deching;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,76 +25,98 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CreateAccountActivity extends AppCompatActivity {
+
+    private TextView alreadyHasAccountBtn;
     private TextView errorCreateAccountTextView;
+    private Button createAccountBtn;
+
+    private EditText nomEditText;
+    private EditText prenomEditText;
+    private EditText mailEditText;
+    private EditText createUsernameEditText;
+    private EditText createPasswordEditText;
+
+    private String nom;
+    private String prenom;
+    private String mail;
     private String username;
     private String password;
-    private DatabaseManager databaseManager;
 
-
+//    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EditText passwordEditText;
-        EditText usernameEditText;
-        Button createAccountBtn;
-        TextView alreadyHasAccountBtn;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
 
         alreadyHasAccountBtn = findViewById(R.id.alreadyHasAccountBtn);
         createAccountBtn = findViewById(R.id.createAccountBtn);
-        usernameEditText = findViewById(R.id.createUsernameEditText);
-        passwordEditText = findViewById(R.id.createPasswordEditText);
+        nomEditText = findViewById(R.id.nomEditText);
+        prenomEditText = findViewById(R.id.prenomEditText);
+        mailEditText = findViewById(R.id.mailEditText);
+        createUsernameEditText = findViewById(R.id.createUsernameEditText);
+        createPasswordEditText = findViewById(R.id.createPasswordEditText);
         errorCreateAccountTextView = findViewById(R.id.errorCreateAccountTextView);
 
-        databaseManager = new DatabaseManager(getApplicationContext());
-
-        createAccountBtn.setOnClickListener(v -> {
-            username = usernameEditText.getText().toString();
-            password = passwordEditText.getText().toString();
-
-            createAccount();
+        createAccountBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nom = nomEditText.getText().toString();
+                prenom = prenomEditText.getText().toString();
+                mail = mailEditText.getText().toString();
+                username = createUsernameEditText.getText().toString();
+                password = createPasswordEditText.getText().toString();
+                createAccount();
+            }
         });
 
-        alreadyHasAccountBtn.setOnClickListener(v -> {
-            Intent createToAccountActivity = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(createToAccountActivity);
+        alreadyHasAccountBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent createToAccountActivity = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(createToAccountActivity);
+            }
         });
     }
 
-    public void onApiResponse(JSONObject response) {
-        boolean success;
-        String error;
+    private void createAccount() {
+        String url = "https://deching.alwaysdata.net/connxionUser/createAccount.php";
 
+        JSONObject postData = new JSONObject();
         try {
-            success = response.getBoolean("success");
-
-            if (success) {
-                Intent interfaceActivity = new Intent(getApplicationContext(), InterfaceActivity.class);
-                interfaceActivity.putExtra("username", username);
-                startActivity(interfaceActivity);
-                finish();
-            } else {
-                error = response.getString("error");
-                errorCreateAccountTextView.setVisibility(View.VISIBLE);
-                errorCreateAccountTextView.setText(error);
-            }
-
+            postData.put("nom", nom);
+            postData.put("prenom", prenom);
+            postData.put("mail", mail);
+            postData.put("username", username);
+            postData.put("userPassword", password);
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
         }
-    }
 
-    public void createAccount() {
-        String url = "http://10.0.2.2/test/actions/createAccount.php";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, postData,
+                response -> {
+                    Log.d("api",response.toString());
+                    try {
+                        boolean success = response.getBoolean("success");
 
-        Map<String, String> params = new HashMap<>();
-        params.put("username", username);
-        params.put("password", password);
-        JSONObject parameters = new JSONObject(params);
+                        if (success) {
+                            // Compte créé avec succès
+                            Log.d("success","Compte créé avec succès");
+                            Intent intent = new Intent(CreateAccountActivity.this, MainActivity.class);
+//                                intent.putExtra("username", username);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // Création de compte échouée, afficher un message d'erreur
+                            errorCreateAccountTextView.setVisibility(View.VISIBLE);
+                            errorCreateAccountTextView.setText("Erreur lors de la création du compte. Veuillez réessayer.");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(CreateAccountActivity.this, "Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> Log.e("API Connection", "Erreur lors de la connexion à l'API", error));
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, parameters, this::onApiResponse, error -> Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show());
-
-        databaseManager.queue.add(jsonObjectRequest);
+        // Ajout de la requête à la file d'attente
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 }
