@@ -1,5 +1,4 @@
 package com.example.deching;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,17 +9,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Classe représentant la page de connexion à un compte
@@ -49,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EditText usernameEditText;
+        EditText passwordEditText;
+        Button connectBtn;
+        TextView createAccountBtn;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
                         if (success) {
                             // Connexion réussie, rediriger vers MapActivity
-                            Log.d("success","Connexion reussie");
                             Intent intent = new Intent(MainActivity.this, MapActivity.class);
                             startActivity(intent);
                             finish();
