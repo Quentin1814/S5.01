@@ -236,9 +236,44 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             boutonPosition.setImageResource(R.drawable.position_clicked);
             // La permission a été accordée, lance le processus asynchrone pour obtenir la position actuelle de l'appareil
             handler.post(runnableCode);
+            handlerMap.post(runnableMap);
+            handlerMap.post(runnableDechet);
         }
     }
 
+    private final Handler handlerMap = new Handler();
+
+    private final Runnable runnableMap = new Runnable() {
+        @Override
+        public void run() {
+            // Mets à jour la map pour les déchets
+            updateMap();
+            handler.postDelayed(this, 10000);
+        }
+    };
+
+    private void updateMap() {
+        if (!listeDechets.isEmpty()) {
+            googleMap.clear();
+            // Ajouter des marqueurs pour chaque déchet dans la liste
+            for (Dechet dechet : listeDechets) {
+                LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
+            }
+        }
+    }
+
+    private final Runnable runnableDechet = new Runnable() {
+        @Override
+        public void run() {
+            reinitialiseListeDechets();
+            handler.postDelayed(this, 4000);
+        }
+    };
+    private void reinitialiseListeDechets(){
+        listeDechets.clear();
+        getAllZoneDechet(listeDechets::addAll);
+    }
 
     /**
      * Gestionnaire utilisé pour programmer et exécuter des actions différées dans le thread de l'interface utilisateur.
