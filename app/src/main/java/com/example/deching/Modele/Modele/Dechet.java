@@ -1,6 +1,5 @@
 package com.example.deching.Modele.Modele;
 
-
 /**
  * Classe représentant un déchet
  */
@@ -29,7 +28,6 @@ public class Dechet {
      * Description optionnelle ajoutée lors de la description d'un déchet
      */
     private String description;
-
 
     /**
      * Constructeur de la classe Dechet
@@ -136,6 +134,5 @@ public class Dechet {
     public void setDescription(String description) {
         this.description = description;
     }
-
 
 }

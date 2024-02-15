@@ -2,6 +2,7 @@ package com.example.deching;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,11 +25,25 @@ import java.util.Map;
  * Classe représentant la création de compte.
  */
 public class CreateAccountActivity extends AppCompatActivity {
-
     /**
      * TextView pour afficher les erreurs lors de la création de compte.
      */
     private TextView errorCreateAccountTextView;
+
+    /**
+     * Variable pour stocker le nom de l'utilisateur.
+     */
+    private String nom;
+
+    /**
+     * Variable pour stocker le prénom de l'utilisateur.
+     */
+    private String prenom;
+
+    /**
+     * Variable pour stocker l'adresse e-mail de l'utilisateur.
+     */
+    private String mail;
 
     /**
      * Nom d'utilisateur
@@ -40,20 +56,17 @@ public class CreateAccountActivity extends AppCompatActivity {
     private String password;
 
     /**
-     * Gestionnaire de la base de données pour la communication avec le serveur.
-     * Utilisé pour envoyer des requêtes et recevoir des réponses.
-     */
-    private DatabaseManager databaseManager;
-
-    /**
      * Méthode appelée lors de la création de l'activité.
      *
      * @param savedInstanceState données permettant de reconstruire l'activité lorsqu'elle est recréée, si null alors aucune donnée n'est disponible.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EditText passwordEditText;
-        EditText usernameEditText;
+        EditText createPasswordEditText;
+        EditText createUsernameEditText;
+        EditText mailEditText;
+        EditText prenomEditText;
+        EditText nomEditText;
         Button createAccountBtn;
         TextView alreadyHasAccountBtn;
         super.onCreate(savedInstanceState);
@@ -62,18 +75,20 @@ public class CreateAccountActivity extends AppCompatActivity {
         // Initialisation des vues et des boutons
         alreadyHasAccountBtn = findViewById(R.id.alreadyHasAccountBtn);
         createAccountBtn = findViewById(R.id.createAccountBtn);
-        usernameEditText = findViewById(R.id.createUsernameEditText);
-        passwordEditText = findViewById(R.id.createPasswordEditText);
+        nomEditText = findViewById(R.id.nomEditText);
+        prenomEditText = findViewById(R.id.prenomEditText);
+        mailEditText = findViewById(R.id.mailEditText);
+        createUsernameEditText = findViewById(R.id.createUsernameEditText);
+        createPasswordEditText = findViewById(R.id.createPasswordEditText);
         errorCreateAccountTextView = findViewById(R.id.errorCreateAccountTextView);
-
-        // Initialisation du gestionnaire de base de données
-        databaseManager = new DatabaseManager(getApplicationContext());
 
         // Gestion du clic sur le bouton de création de compte
         createAccountBtn.setOnClickListener(v -> {
-            username = usernameEditText.getText().toString();
-            password = passwordEditText.getText().toString();
-
+            nom = nomEditText.getText().toString();
+            prenom = prenomEditText.getText().toString();
+            mail = mailEditText.getText().toString();
+            username = createUsernameEditText.getText().toString();
+            password = createPasswordEditText.getText().toString();
             createAccount();
         });
 
@@ -85,52 +100,43 @@ public class CreateAccountActivity extends AppCompatActivity {
     }
 
     /**
-     * Méthode appelée lors de la réception d'une réponse de l'API.
-     *
-     * @param response Objet JSON représentant la réponse de l'API.
-     */
-    public void onApiResponse(JSONObject response) {
-        boolean success;
-        String error;
-
-        try {
-            success = response.getBoolean("success");
-
-            if (success) {
-                // Si la création de compte est réussie, démarrer l'activité principale
-                Intent interfaceActivity = new Intent(getApplicationContext(), InterfaceActivity.class);
-                interfaceActivity.putExtra("username", username);
-                startActivity(interfaceActivity);
-                finish();
-            } else {
-                // Si la création de compte a échoué, afficher le message d'erreur
-                error = response.getString("error");
-                errorCreateAccountTextView.setVisibility(View.VISIBLE);
-                errorCreateAccountTextView.setText(error);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
      * Méthode pour créer un nouveau compte en envoyant une requête à l'API.
      */
-    public void createAccount() {
-        String url = "http://10.0.2.2/test/actions/createAccount.php";
+    private void createAccount() {
+        String url = "https://deching.alwaysdata.net/connxionUser/createAccount.php";
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("nom", nom);
+            postData.put("prenom", prenom);
+            postData.put("mail", mail);
+            postData.put("username", username);
+            postData.put("userPassword", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        // Paramètres de la requête
-        Map<String, String> params = new HashMap<>();
-        params.put("username", username);
-        params.put("password", password);
-        JSONObject parameters = new JSONObject(params);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, postData,
+                response -> {
+                    try {
+                        boolean success = response.getBoolean("success");
 
-        // Création de la requête JSON
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, parameters, this::onApiResponse, error -> Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show());
+                        if (success) {
+                            // Compte créé avec succès
+                            Intent intent = new Intent(CreateAccountActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // Création de compte échouée, afficher un message d'erreur
+                            errorCreateAccountTextView.setVisibility(View.VISIBLE);
+                            errorCreateAccountTextView.setText("Erreur lors de la création du compte. Veuillez réessayer.");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(CreateAccountActivity.this, "Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+                    }
+                }, error -> Log.e("API Connection", "Erreur lors de la connexion à l'API", error));
 
-        // Ajout de la requête à la file d'attente du gestionnaire de base de données
-        databaseManager.queue.add(jsonObjectRequest);
+        // Ajout de la requête à la file d'attente
+        Volley.newRequestQueue(this).add(jsonObjectRequest);
     }
 }
