@@ -1,4 +1,5 @@
 package com.example.deching;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +10,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -26,7 +27,6 @@ import java.util.Map;
  */
 
 public class MainActivity extends AppCompatActivity {
-
     /**
      * Error de création de compte
      */
@@ -49,18 +49,14 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EditText passwordEditText;
-        EditText usernameEditText;
-        TextView createAccountBtn;
-        Button connectBtn;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        errorConnectAccountTextView = findViewById(R.id.errorConnectAccountTextView);
         usernameEditText = findViewById(R.id.usernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         connectBtn = findViewById(R.id.connectBtn);
         createAccountBtn = findViewById(R.id.createAccountBtn);
+        errorConnectAccountTextView = findViewById(R.id.errorConnectAccountTextView);
 
         connectBtn.setOnClickListener(v -> {
             username = usernameEditText.getText().toString();

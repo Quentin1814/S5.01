@@ -89,6 +89,39 @@
                 android:inputType="textEmailAddress" />
 
             <EditText
+                android:id="@+id/nomEditText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginRight="10dp"
+                android:background="#f2f2f2"
+                android:hint="Nom ..."
+                android:padding="10dp"></EditText>
+
+            <EditText
+                android:id="@+id/prenomEditText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginRight="10dp"
+                android:background="#f2f2f2"
+                android:hint="Prenom..."
+                android:padding="10dp"></EditText>
+            <EditText
+                android:id="@+id/mailEditText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginRight="10dp"
+                android:background="#f2f2f2"
+                android:hint="Adresse email..."
+                android:padding="10dp"
+                android:inputType="textEmailAddress"></EditText>
+
+            <EditText
                 android:id="@+id/createUsernameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"

@@ -33,8 +33,10 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
+import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -414,6 +416,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private void supprimerDechet(Dechet dechet) {
         listeDechets.remove(dechet);
+        deleteZoneDechet(dechet);
         // Mettez à jour l'affichage sur la carte
         afficherMarqueursSurCarte();
     }
@@ -443,7 +446,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             // Ajouter des marqueurs pour chaque déchet dans la liste mise à jour
             for (Dechet dechet : listeDechets) {
                 LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.getDescription()));
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
             }
         }
     }
@@ -737,9 +740,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, detailsSelectionnes);
+        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
-        // Stocker le dernier déchet cliqué
+        addZoneDechet(nouveauDechet);
+        afficherMarqueursSurCarte();
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
@@ -962,6 +966,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         };
         // Ajout de la requête à la file d'attente
         queue.add(jsonRequest);
+    }
+    //Méthode qui permet de supprimer un déchet enregistré en base de données via son identifiant
+    protected void deleteZoneDechet(Dechet unDechet){
+
+        try {
+            RequestQueue queue;
+            queue = Volley.newRequestQueue(this);
+            queue.start();
+
+            String url = "https://deching.alwaysdata.net/actions/Dechet.php?id="+unDechet.getId();
+            StringRequest stringRequest = new StringRequest(Request.Method.DELETE,url, reponse -> {
+            },
+                    error -> {
+                    }) {
+            };
+            queue.add(stringRequest);
+        } catch (Exception exception){
+            Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
+        }
+
     }
 }
 

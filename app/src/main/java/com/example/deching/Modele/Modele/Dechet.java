@@ -57,6 +57,7 @@ public class Dechet {
         this.longitude = longitude;
         this.taille=taille;
         this.description = description;
+        this.monUtilisateur = monUtilisateur;
     }
 
     /**
