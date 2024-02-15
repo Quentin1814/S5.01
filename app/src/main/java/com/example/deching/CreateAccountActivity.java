@@ -116,7 +116,6 @@ public class CreateAccountActivity extends AppCompatActivity {
                 response -> {
                     try {
                         boolean success = response.getBoolean("success");
-
                         if (success) {
                             // Compte créé avec succès
                             Intent intent = new Intent(CreateAccountActivity.this, MainActivity.class);

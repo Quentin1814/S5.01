@@ -36,7 +36,8 @@
     // Map Activity
     <string name="dechetAdd">Déchet ajouté avec succès</string>
     <string name="dechetDelete">Déchet supprimé avec succès</string>
-    <string name="dechetWarning">Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous-même.\nMerci de votre signalement.</string>
+    <string name="dechetWarning">Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous-même.
+        \nMerci de votre signalement.</string>
 
     <string name="delete">Supprimer</string>
     <string name="cancel">Annuler</string>
@@ -45,7 +46,6 @@
     <string name="dechetLatitude">Latitude</string>
     <string name="dechetLongitude">Longitude</string>
     <string name="dechetDescription">Description</string>
-
 
 
     // Camera Layout
@@ -75,4 +75,25 @@
 
 
     <string name="erreurTraitementDonnees">Erreur de traitement des données</string>
+
+    // profil layout
+    <string name="posts">Posts</string>
+    <string name="evenements">Événements</string>
+    <string name="suivis">Suivis</string>
+    <string name="descriptionVide">Description vide! Rajoutes-en une!</string>
+    <string name="boutonEditer">Editer le profil</string>
+    <string name="boutonAjouter">Ajouter un ami</string>
+    <string name="menu">Menu</string>
+    <string name="credit">Crédits</string>
+    <string name="creditValue">Cette application a été développé par un groupe d\'étudiants en troisième année de BUT Informatique.
+        \n Le groupe étant composé de \:
+        \n \- DUJARDIN Esteban
+        \n \- FALL Daro
+        \n \- JOUVE Noé
+        \n \- MONIMAUD Mike
+        \n \- ROBERT Quentin
+        \n
+        \n Aussi\, ce projet a été commandité par l\'association Déching et a bénéficié d\'un tuteur au sein de l\'IUT Informatique de Bayonne et du Pays Basque \:
+        \n \- MARQUESUZAÀ Christophe</string>
+    <string name="versionApp">Version de l\'application</string>
 </resources>
