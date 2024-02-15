@@ -139,6 +139,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ImageButton boutonEvent;
         ImageButton boutonHome;
         ImageButton boutonLogo;
+        ImageButton boutonProfil;
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -185,6 +186,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         boutonSignaler.setOnClickListener(v -> {
             popupParameters = new HashMap<>();
             afficherPopup();
+        });
+
+        boutonProfil=findViewById(R.id.imageButtonProfile);
+        boutonProfil.setOnClickListener(v -> {
+            Intent intentProfile = new Intent(MapActivity.this, ProfilActivity.class);
+            startActivity(intentProfile);
         });
 
         askAuthorisation();

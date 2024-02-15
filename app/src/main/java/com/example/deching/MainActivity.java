@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.deching.utilitaire.SingletonUtilisateur;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (success) {
                             // Connexion réussie, rediriger vers MapActivity
+                            SingletonUtilisateur utilisateur= SingletonUtilisateur.getInstance(username);
                             Intent intent = new Intent(MainActivity.this, MapActivity.class);
                             startActivity(intent);
                             finish();
