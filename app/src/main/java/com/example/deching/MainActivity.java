@@ -19,12 +19,38 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Classe représentant la page de connexion à un compte
+ */
+
 public class MainActivity extends AppCompatActivity {
+
+    /**
+     * Error de création de compte
+     */
     private TextView errorConnectAccountTextView;
+
+    /**
+     * Nom d'utilisateur
+     */
     private String username;
+
+    /**
+     * Mot de passe de l'utilisateur
+     */
     private String password;
+
+    /**
+     * Gestionnaire de la base de données pour la communication avec le serveur.
+     * Utilisé pour envoyer des requêtes et recevoir des réponses.
+     */
     private DatabaseManager databaseManager;
 
+    /**
+     * Méthode appelée lors de la création de l'activité.
+     *
+     * @param savedInstanceState données permettant de reconstruire l'activité lorsqu'elle est recréée, si null alors aucune donnée n'est disponible.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EditText passwordEditText;
@@ -56,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Méthode qui permet de récupérer la réponse l'api
+     * @param response Réponse de l'API
+     */
     public void onApiResponse(JSONObject response) {
         boolean success;
         String error;
@@ -80,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Méthode qui permet de connecter un utilisateur
+     */
     public void connectUser() {
         // 10.0.2.2 correspond à localhost dans google chrome
         String url = "http://10.0.2.2/Test/actions/connectUser.php";
