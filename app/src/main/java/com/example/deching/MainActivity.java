@@ -99,12 +99,12 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // Connexion échouée, afficher un message d'erreur
                             errorConnectAccountTextView.setVisibility(View.VISIBLE);
-                            errorConnectAccountTextView.setText("Connexion échouée. Veuillez vérifier vos identifiants.");
+                            errorConnectAccountTextView.setText(R.string.connexion_echoue);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Log.d("API Connection",response.toString());
-                        Toast.makeText(MainActivity.this, "Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, R.string.erreurTraitementDonnees, Toast.LENGTH_SHORT).show();
                     }
                 }, error -> Log.e("API Connection", "Erreur lors de la connexion à l'API", error));
 
