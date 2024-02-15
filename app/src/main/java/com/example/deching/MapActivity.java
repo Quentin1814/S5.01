@@ -152,9 +152,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         layoutMap.setVisibility(View.VISIBLE);
         layoutPopup.setVisibility(View.GONE);
 
-        // Chargement des données de déchets récupérées dasn le base de données
-        getAllZoneDechet(listeDechetsInit::addAll);
-
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
             Intent intentHome = new Intent(MapActivity.this, HomePageActivity.class);
@@ -248,7 +245,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         public void run() {
             // Mets à jour la map pour les déchets
             updateMap();
-            handler.postDelayed(this, 10000);
+            handler.postDelayed(this, 5000);
         }
     };
 
@@ -260,6 +257,28 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
                 googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
             }
+            // Ajouter un listener de clic sur les marqueurs
+            googleMap.setOnMarkerClickListener(marker -> {
+                // Récupérer le déchet associé au marqueur
+                Dechet dechetSelectionne = trouverDechetParToString(marker.getTitle());
+                // Récupérez les informations du marqueur à partir de la balise
+                Dechet markerInfo = (Dechet) marker.getTag();
+
+                // Vérifiez si la balise contient des informations
+                if (markerInfo != null) {
+                    // Utilisez les informations du marqueur comme nécessaire
+                    Log.d("Marker Clicked", "ID: " + markerInfo.getId() + ", Latitude: " + markerInfo.getLatitude() +
+                            ", Longitude: " + markerInfo.getLongitude() + ", Description: " + markerInfo.getDescription());
+                }
+
+                // Afficher une boîte de dialogue ou exécuter l'action appropriée
+                if (dechetSelectionne != null) {
+                    // Afficher les détails du déchet
+                    afficherDetailsDechet(dechetSelectionne);
+                }
+
+                return true;
+            });
         }
     }
 
@@ -267,7 +286,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         public void run() {
             reinitialiseListeDechets();
-            handler.postDelayed(this, 4000);
+            handler.postDelayed(this, 60000);
         }
     };
     private void reinitialiseListeDechets(){
@@ -452,8 +471,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void supprimerDechet(Dechet dechet) {
         listeDechets.remove(dechet);
         deleteZoneDechet(dechet);
-        // Mettez à jour l'affichage sur la carte
-        afficherMarqueursSurCarte();
+        updateMap();
     }
 
 
@@ -493,17 +511,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
-                .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
-                        + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
-                        + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
-                        + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
-                .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
-                    // Appeler la méthode pour supprimer le déchet après confirmation
-                    supprimerDechet(dechet);
-                    afficherToast(getString(R.string.dechetDelete), R.color.red);
-                })
-                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                .show();
+            .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
+                    + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
+                    + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
+                    + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
+            .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
+                // Appeler la méthode pour supprimer le déchet après confirmation
+                supprimerDechet(dechet);
+                afficherToast(getString(R.string.dechetDelete), R.color.red);
+            })
+            .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+            .show();
     }
 
     /**
@@ -775,7 +793,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
+        Dechet nouveauDechet = new Dechet(lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
         addZoneDechet(nouveauDechet);
         afficherMarqueursSurCarte();
