@@ -252,8 +252,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private final Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
-            centerMapOnMyLocation(); // Centre la carte sur la position de l'utilisateur
-            handler.postDelayed(this, 4000); // Planifie l'exécution de cette tâche après un délai de 4000 millisecondes (4 secondes)
+            // Centre la carte sur la position de l'utilisateur
+            centerMapOnMyLocation();
+            // Planifie l'exécution de cette tâche après un délai de 4000 millisecondes (4 secondes)
+            handler.postDelayed(this, 4000);
         }
     };
 
@@ -266,7 +268,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
-        handler.post(runnableCode); // Planifie l'exécution périodique de la tâche pour mettre à jour la carte avec la position de l'utilisateur
+        // Planifie l'exécution périodique de la tâche pour mettre à jour la carte avec la position de l'utilisateur
+        handler.post(runnableCode);
     }
 
     /**
@@ -278,7 +281,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onPause() {
         super.onPause();
-        handler.removeCallbacks(runnableCode); // Arrête l'exécution périodique de la tâche pour mettre à jour la carte avec la position de l'utilisateur
+        // Arrête l'exécution périodique de la tâche pour mettre à jour la carte avec la position de l'utilisateur
+        handler.removeCallbacks(runnableCode);
         // Change l'image du bouton de position pour indiquer que la localisation n'est pas activée
         boutonPosition = findViewById(R.id.imageButtonPosition);
         boutonPosition.setImageResource(R.drawable.position_not_clicked);
@@ -877,9 +881,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             objetJSON.put("longitude",unDechet.getLongitude());
             objetJSON.put("taille",unDechet.getTaille());
             objetJSON.put("description",unDechet.getDescription());
-            objetJSON.put("idEvenement","3"); // ID de l'événement associé au déchet
-            objetJSON.put("idCollecte","2");  // ID de la collecte associée au déchet
-            objetJSON.put("idUtilisateur","1"); // ID de l'utilisateur associé au déchet
+            // ID de l'événement associé au déchet
+            objetJSON.put("idEvenement","3");
+            // ID de la collecte associée au déchet
+            objetJSON.put("idCollecte","2");
+            // ID de l'utilisateur associé au déchet
+            objetJSON.put("idUtilisateur","1");
 
             // URL de l'API pour ajouter un déchet à la base de données
             String url = "https://deching.alwaysdata.net/actions/Dechet.php";

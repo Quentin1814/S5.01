@@ -103,8 +103,8 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     /**
-     * Méthode pour vérifier si la version de l'API est Tiramisu ou supérieure
-     * @return La version de l'API
+     * Retourne un booléen true si supérieur false sinon
+     * @return Booléen true si supérieur false sinon
      */
     private boolean isSdkVersionTiramisuOrHigher() {
         return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
@@ -112,7 +112,7 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      * Méthode pour demander une autorisation si elle n'est pas accordée
-     * @param permission Autorisation si elle n'est pas accordée
+     * @param permission Autorisation à demander
      */
     private void requestPermissionIfNotGranted(String permission) {
         if (ContextCompat.checkSelfPermission(CameraActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {

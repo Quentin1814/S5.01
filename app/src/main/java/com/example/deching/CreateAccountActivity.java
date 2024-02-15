@@ -25,7 +25,7 @@ import java.util.Map;
 public class CreateAccountActivity extends AppCompatActivity {
 
     /**
-     * Error de création de compte
+     * TextView pour afficher les erreurs lors de la création de compte.
      */
     private TextView errorCreateAccountTextView;
 

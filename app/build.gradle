@@ -32,9 +32,7 @@ android {
 }
 
 def localProperties = new Properties()
-//localProperties.load(new FileInputStream(file('local.properties'))) // C:\Users\edujardin\Desktop\S6\app doit aller C:\Users\edujardin\Desktop\S6
 localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
-// Eduardo: moi ca va dans le bon dossier mais pas dans le siens car : = raciste
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
