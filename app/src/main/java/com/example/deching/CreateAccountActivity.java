@@ -103,11 +103,11 @@ public class CreateAccountActivity extends AppCompatActivity {
         String url = "https://deching.alwaysdata.net/connxionUser/createAccount.php";
         JSONObject postData = new JSONObject();
         try {
-            postData.put("nom", nom);
-            postData.put("prenom", prenom);
-            postData.put("mail", mail);
-            postData.put("username", username);
-            postData.put("userPassword", password);
+            postData.put(getString(R.string.nom), nom);
+            postData.put(getString(R.string.prenom), prenom);
+            postData.put(getString(R.string.mail), mail);
+            postData.put(getString(R.string.username), username);
+            postData.put(getString(R.string.userpassword), password);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -125,11 +125,11 @@ public class CreateAccountActivity extends AppCompatActivity {
                         } else {
                             // Création de compte échouée, afficher un message d'erreur
                             errorCreateAccountTextView.setVisibility(View.VISIBLE);
-                            errorCreateAccountTextView.setText("Erreur lors de la création du compte. Veuillez réessayer.");
+                            errorCreateAccountTextView.setText(R.string.erreurCreationCompte);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(CreateAccountActivity.this, "Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateAccountActivity.this, R.string.erreurTraitementDonnees, Toast.LENGTH_SHORT).show();
                     }
                 }, error -> Log.e("API Connection", "Erreur lors de la connexion à l'API", error));
 

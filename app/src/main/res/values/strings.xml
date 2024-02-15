@@ -36,7 +36,7 @@
     // Map Activity
     <string name="dechetAdd">Déchet ajouté avec succès</string>
     <string name="dechetDelete">Déchet supprimé avec succès</string>
-    <string name="dechetWarning">Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous même.\nMerci de votre signalement.</string>
+    <string name="dechetWarning">Vous venez de rentrer un déchet potentiellement dangereux pour vous ainsi que pour les autres. Nous allons donc le nettoyer par nous-même.\nMerci de votre signalement.</string>
 
     <string name="delete">Supprimer</string>
     <string name="cancel">Annuler</string>
@@ -63,4 +63,16 @@
     // Evenement Layout
 
     // Evenement Activity
+
+    // CreateAccountActivity
+    <string name="connexion_echoue">Connexion échouée. Veuillez vérifier vos identifiants.</string>
+    <string name="nom">nom</string>
+    <string name="prenom">prenom</string>
+    <string name="mail">mail</string>
+    <string name="username">username</string>
+    <string name="userpassword">userPassword</string>
+    <string name="erreurCreationCompte">Erreur lors de la création du compte. Veuillez réessayer.</string>
+
+
+    <string name="erreurTraitementDonnees">Erreur de traitement des données</string>
 </resources>
