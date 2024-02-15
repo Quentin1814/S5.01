@@ -22,17 +22,31 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * Classe représentant la page de connexion à un compte
+ */
 
-    private EditText usernameEditText;
-    private EditText passwordEditText;
-    private Button connectBtn;
-    private TextView createAccountBtn;
+public class MainActivity extends AppCompatActivity {
+    /**
+     * Error de création de compte
+     */
     private TextView errorConnectAccountTextView;
 
+    /**
+     * Nom d'utilisateur
+     */
     private String username;
+
+    /**
+     * Mot de passe de l'utilisateur
+     */
     private String password;
 
+    /**
+     * Méthode appelée lors de la création de l'activité.
+     *
+     * @param savedInstanceState données permettant de reconstruire l'activité lorsqu'elle est recréée, si null alors aucune donnée n'est disponible.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,25 +58,22 @@ public class MainActivity extends AppCompatActivity {
         createAccountBtn = findViewById(R.id.createAccountBtn);
         errorConnectAccountTextView = findViewById(R.id.errorConnectAccountTextView);
 
-        connectBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                username = usernameEditText.getText().toString();
-                password = passwordEditText.getText().toString();
-                connectUser();
-            }
+        connectBtn.setOnClickListener(v -> {
+            username = usernameEditText.getText().toString();
+            password = passwordEditText.getText().toString();
+            connectUser();
         });
 
-        createAccountBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Rediriger vers l'activité de création de compte si on n'a pas de compte
-                Intent intent = new Intent(MainActivity.this, CreateAccountActivity.class);
-                startActivity(intent);
-            }
+        createAccountBtn.setOnClickListener(v -> {
+            // Rediriger vers l'activité de création de compte si on n'a pas de compte
+            Intent intent = new Intent(MainActivity.this, CreateAccountActivity.class);
+            startActivity(intent);
         });
     }
 
+    /**
+     * Méthode qui permet de connecter un utilisateur
+     */
     private void connectUser() {
         String url = "https://deching.alwaysdata.net/connxionUser/connectUser.php";
 
@@ -97,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Erreur de traitement des données", Toast.LENGTH_SHORT).show();
                     }
                 }, error -> Log.e("API Connection", "Erreur lors de la connexion à l'API", error));
-
 
         // Ajout de la requête à la file d'attente
         Volley.newRequestQueue(this).add(jsonObjectRequest);
