@@ -2,12 +2,17 @@ package com.example.deching;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 
 import com.example.deching.utilitaire.SingletonUtilisateur;
 
@@ -19,6 +24,8 @@ public class ProfilActivity extends AppCompatActivity {
         ImageButton boutonHome;
         ImageButton boutonMenu;
         ImageButton boutonCloseMenu;
+        ImageButton boutonAddPost;
+        ImageButton boutonProfile;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
@@ -26,6 +33,8 @@ public class ProfilActivity extends AppCompatActivity {
         boutonEvent = (ImageButton) findViewById(R.id.imageButtonEvent);
         boutonMenu = (ImageButton) findViewById(R.id.imageButtonMenu);
         boutonCloseMenu = (ImageButton) findViewById(R.id.menuClose);
+        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
+        boutonProfile = (ImageButton) findViewById(R.id.imageButtonProfile);
 
         SingletonUtilisateur utilisateur = SingletonUtilisateur.getInstance("");
         boutonHome.setOnClickListener(v -> {
@@ -65,5 +74,28 @@ public class ProfilActivity extends AppCompatActivity {
             mainLayout.setVisibility(FrameLayout.VISIBLE);
             menuLayout.setVisibility(FrameLayout.GONE);
         });
+
+
+
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            Log.d("HomePageActivity", "Mode nuit");
+            boutonMenu.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonProfile.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonCloseMenu.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+        } else {
+            Log.d("HomePageActivity", "Mode jour");
+            boutonMenu.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonProfile.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonCloseMenu.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+        }
     }
 }
