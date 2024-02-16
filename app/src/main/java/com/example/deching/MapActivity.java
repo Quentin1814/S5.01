@@ -98,7 +98,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     /**
      * Création d'un déchet instantané pour la suppression d'un déchet référence
      */
-    private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
 
     /**
      * Récuperer les imformations du dernier point créé afin de créer un événement
@@ -255,6 +254,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             handler.postDelayed(this, 5000);
         }
     };
+
+    public Runnable getRunnableMap() {
+        return runnableMap;
+    }
 
     private void updateMap() {
         if (!listeDechets.isEmpty()) {
@@ -421,8 +424,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 afficherToast(getString(R.string.dechetAdd), R.color.green);
             }
         });
-
-        listeDechets.addAll(listeDechetsInit);
 
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
@@ -792,7 +793,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private void onValiderClick() {
         String tailleSelectionnee = popupParameters.get("Taille");
-        String detailsSelectionnes = popupParameters.get("Details") + ", " + popupParameters.get("Details2");
+        String detailsSelectionnes;
+        if(popupParameters.get("Détails").isEmpty() && popupParameters.get("Détails2").isEmpty()){
+            detailsSelectionnes = null;
+        }else{
+            detailsSelectionnes = popupParameters.get("Détails") + ", " + popupParameters.get("Détails2");
+        }
+
         String commentaire = popupParameters.get("Commentaire");
         String position = getPosition();
 
@@ -807,7 +814,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
-        afficherAlerte(getString(R.string.dechetWarning));
+        if(!(detailsSelectionnes==null)){
+            afficherAlerte(getString(R.string.dechetWarning));
+        }
         popupParameters = null;
     }
 
