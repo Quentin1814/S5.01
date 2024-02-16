@@ -34,51 +34,49 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Complétez ces informations afin de vous connecter à votre compte"
-                android:gravity="center"
-                android:textColor="@color/black"
+                android:layout_marginLeft="15dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp">
-            </TextView>
+                android:gravity="center"
+                android:text="Complétez ces informations afin de vous connecter à votre compte"
+                android:textColor="@color/black"></TextView>
 
             <TextView
                 android:id="@+id/errorConnectAccountTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginRight="15dp"
+                android:gravity="center"
                 android:text="Error"
                 android:textColor="@color/red"
-                android:gravity="center"
                 android:textSize="20dp"
-                android:layout_marginTop="15dp"
-                android:visibility="gone">
-            </TextView>
+                android:visibility="gone"></TextView>
 
             <EditText
                 android:id="@+id/usernameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="35dp"
+                android:layout_marginRight="10dp"
                 android:background="#f2f2f2"
                 android:hint="Nom d'utilisateur..."
-                android:padding="10dp">
-            </EditText>
+                android:padding="10dp"></EditText>
+
             <EditText
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="35dp"
+                android:layout_marginRight="10dp"
                 android:background="#f2f2f2"
                 android:hint="Mot de passe..."
-                android:padding="10dp"
-                android:inputType="textPassword">
-            </EditText>
+                android:inputType="textPassword"
+                android:padding="10dp"></EditText>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -94,16 +92,16 @@
                     android:gravity="center"
                     android:text="SE CONNECTER"></Button>
             </LinearLayout>
+
             <TextView
                 android:id="@+id/createAccountBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Créer un compte"
+                android:layout_marginTop="35dp"
                 android:gravity="center"
+                android:text="Créer un compte"
                 android:textColor="@color/black"
-                android:textSize="18dp"
-                android:layout_marginTop="35dp">
-            </TextView>
+                android:textSize="25dp"></TextView>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

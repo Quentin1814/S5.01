@@ -9,6 +9,8 @@ public class Evenement {
     private int nbParticipantTotal;//Nombre total de participant à l'événement
     private String lieu;//Adresse du lieu de l'événement
     private Date dateEvent;//Date de l'événement
+    private String photoBase64;
+    // image de l'événement
     private Utilisateur monUtilisateur;//Objet "Utilisateur" qui a créé l'événement
 
     public Evenement(String nom, String description, int nbParticipantTotal, String lieu, Date dateEvent, Utilisateur monUtilisateur) {
@@ -19,6 +21,16 @@ public class Evenement {
         this.lieu = lieu;
         this.dateEvent = dateEvent;
         this.monUtilisateur = monUtilisateur;
+    }
+
+    public Evenement(String nom, String photoBase64, String lieu, String description) {
+        this.nom = nom;
+        this.photoBase64 = photoBase64;
+        this.lieu = lieu;
+        this.description = description;
+    }
+    public String getPhotoBase64() {
+        return photoBase64;
     }
 
     public int getId() {
@@ -52,11 +64,9 @@ public class Evenement {
     public void setNbParticipantTotal(int nbParticipantTotal) {
         this.nbParticipantTotal = nbParticipantTotal;
     }
-
     public String getLieu() {
         return lieu;
     }
-
     public void setLieu(String lieu) {
         this.lieu = lieu;
     }
@@ -64,15 +74,12 @@ public class Evenement {
     public Date getDateEvent() {
         return dateEvent;
     }
-
     public void setDateEvent(Date dateEvent) {
         this.dateEvent = dateEvent;
     }
-
     public Utilisateur getMonUtilisateur() {
         return monUtilisateur;
     }
-
     public void setMonUtilisateur(Utilisateur monUtilisateur) {
         this.monUtilisateur = monUtilisateur;
     }

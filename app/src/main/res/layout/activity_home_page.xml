@@ -52,6 +52,14 @@
         android:layout_height="wrap_content"
         android:layout_weight="1">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text=" Bonjour, Bienvenu Chez Deching! \n\nCette page est en construction."
+            android:textSize="18sp" />
+
     </FrameLayout>
 
     <LinearLayout

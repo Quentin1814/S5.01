@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -36,7 +37,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
-import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -53,6 +53,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -75,15 +76,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private final List<Dechet> listeDechets = new ArrayList<>();
 
     private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
-    // creation d'un evenement instantane
-    protected static final List<Evenement> listeEvenements = new ArrayList<>();
-    //pour recuperer les imformation du derniere point creer afin de creer un evenement
-
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
 
     private static final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
     // Créer un LinearLayout pour centrer l'ImageView
-
 
     private SharedPreferences sharedPreferences;
     ImageButton boutonPosition;
@@ -108,7 +104,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         layoutPopup.setVisibility(View.GONE);
 
         // Chargement des données de déchets récupérées dasn le base de données
-        getAllZoneDechet(listeDechetsInit::addAll);
+        getAllZoneDechet(c -> listeDechetsInit.addAll(c));
 
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
@@ -341,16 +337,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     afficherToast(getString(R.string.dechetDelete), R.color.red);
                 })
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                //methode pour partager un dechet
-                .setNeutralButton("Partager", (dialog, which) -> {
-                    String uri = "http://deching/dechet?id=" + dechet.getId();
-                    Log.d("lien",uri);
-                    Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.setType("text/plain");
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Détails du Déchet");
-                    intent.putExtra(Intent.EXTRA_TEXT, uri);
-                    startActivity(Intent.createChooser(intent, "Partager via"));
-                })
                 .show();
     }
 
@@ -570,6 +556,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Ajouter le nouveau déchet à la liste
         Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
+        creerEvenement(nouveauDechet);
         addZoneDechet(nouveauDechet);
         afficherMarqueursSurCarte();
         // Afficher un Toast avec les informations du déchet ajouté
@@ -577,51 +564,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
         afficherAlerte(getString(R.string.dechetWarning));
         popupParameters = null;
-        // creation d'un evenement quand on clique sur le bouton valider
+    }
+    // creation d'un evenement quand on clique sur le bouton valider
+    private void creerEvenement(Dechet nouveauDechet) {
         // recuperer la date actuelle lors de la creation
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1; // Les mois commencent à 0, donc ajouter 1
+        int month = calendar.get(Calendar.MONTH)+1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         // Créer un objet JSON avec les données de l'événement
-        JSONObject eventData = new JSONObject();
         try {
-            eventData.put("id", "event "+ nouveauDechet.getId());
-            eventData.put("nom", "Recolting "+ nouveauDechet.getId());
-            eventData.put("description", detailsSelectionnes+" "+tailleSelectionnee);
-            eventData.put("lieu", position);
-            eventData.put("date", day + "/" + month + "/" + year);
-            eventData.put("photo",sharedPreferences );
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+            RequestQueue queue;
+            queue = Volley.newRequestQueue(this);
+            queue.start();
+            JSONObject eventData = new JSONObject();
+            int i=1;
+            eventData.put("nom", "Recolting "+ i);
+            eventData.put("description", nouveauDechet.getDescription() + "," + nouveauDechet.getTaille());
+            eventData.put("nbParticipantTotal",0);
+            eventData.put("lieu", nouveauDechet.getLatitude()+"/"+nouveauDechet.getLongitude());
+            eventData.put("dateEvent", year+ "-"+month+"-"+day);
+            eventData.put("photo", null);
+            eventData.put("idUtilisateur",120);
         // Envoyer les données à l'API via une requête POST avec Volley
         String url = "https://deching.alwaysdata.net/actions/Evenement.php";
-        creerEvenement(url, eventData);
-    }
-
-    // Méthode pour envoyer les données de l'événement à votre API avec Volley
-    private void creerEvenement(String url, JSONObject data) {
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data,
-                response -> {
-                    // Traitement de la réponse de l'API en cas de succès
-                    Log.d("evenement", "Événement créé avec succès");
-
-                },
-                error -> {
-                    // Gérer les erreurs de l'API en cas d'échec
-                    Log.e("evenement", "Erreur lors de la création de l'événement : " + error.getMessage());
-
-                });
+            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url, eventData, reponse -> {
+            },
+                    error -> {
+                    }) {
+            };
+            queue.add(jsonRequest);
+            i++;
+        } catch (Exception exception){
+            Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
+        }
 
     }
 
     private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
         // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
         reinitialiserBoutons(boutons);
-
         // Mettre en surbrillance le bouton cliqué
         boutonClique.setBackgroundColor(getResources().getColor(R.color.green));
         // Ajoute un etat pour savoir rapidement si le bouton est selectionne
