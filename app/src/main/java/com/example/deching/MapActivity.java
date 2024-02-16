@@ -98,7 +98,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     /**
      * Création d'un déchet instantané pour la suppression d'un déchet référence
      */
-    private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
 
     /**
      * Récuperer les imformations du dernier point créé afin de créer un événement
@@ -425,8 +424,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 afficherToast(getString(R.string.dechetAdd), R.color.green);
             }
         });
-
-        listeDechets.addAll(listeDechetsInit);
 
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
