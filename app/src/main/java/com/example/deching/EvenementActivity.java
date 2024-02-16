@@ -30,8 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {
+    private ImageButton boutonLogo;
     private ImageButton boutonHome;
     private ImageButton boutonMap;
+    private ImageButton boutonAddPost;
+    private ImageButton boutonEvent;
+    private ImageButton boutonProfile;
 
     private List<Evenement> evenementsList;
     private ImageView imageView;
@@ -50,9 +54,9 @@ public class EvenementActivity extends AppCompatActivity {
             Intent intentMap=new Intent(EvenementActivity.this, MapActivity.class);
             startActivity(intentMap);
         });
-        boutonHome=findViewById(R.id.imageButtonHome);
+        boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
-            Intent intentHome=new Intent(EvenementActivity.this, HomePageActivity.class);
+            Intent intentHome = new Intent(EvenementActivity.this, HomePageActivity.class);
             startActivity(intentHome);
         });
         imageView = findViewById(R.id.imageView);

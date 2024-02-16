@@ -27,6 +27,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -61,18 +62,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Classe représentant la page de la carte
+ */
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    /**
+     * Client pour accéder aux services de localisation fusionnés fournis par Google Play services.
+     * Utilisé pour obtenir des informations sur la position géographique de l'appareil.
+     */
     private FusedLocationProviderClient fusedLocationProviderClient;
-    // ajouter des variables pour recuperer les coordonnees d'un marqueur quand on clic sur la carte
+
+    /**
+     * Latitude du marqueur quand on clique sur la carte
+     */
     private double lastClickedLatitude;
+
+    /**
+     * Longitude du marqueur quand on clique sur la carte
+     */
     private double lastClickedLongitude;
-    // Ajoutez une variable pour suivre l'état actuel quand on clic sur le button "Pointer" du popup
+
+    /**
+     * Suivre l'état actuel quand on clic sur le button "Pointer" du popup
+     */
     private boolean modePointer = false;
-    // Ajoutez une variable pour stocker les paramètres du popup
+
+    /**
+     * Stocker les paramètres du popup
+     */
     private Map<String, String> popupParameters = new HashMap<>();
     //creation d'un dechet instantane pour la suppression d'un dechet reference
 
-
+    /**
+     * Création d'une liste de déchet instantané pour la suppression d'un déchet référence
+     */
     private final List<Dechet> listeDechets = new ArrayList<>();
 
     private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
@@ -80,6 +104,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private static final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
     // Créer un LinearLayout pour centrer l'ImageView
+
 
     private SharedPreferences sharedPreferences;
     ImageButton boutonPosition;
@@ -144,6 +169,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         askAuthorisation();
     }
 
+    /**
+     * Demande l'autorisation d'accéder à la localisation de l'appareil.
+     * Vérifie si les autorisations nécessaires pour accéder à la localisation fine (précise) et à la localisation grossière (approximative)
+     * ont été accordées. Si les autorisations ne sont pas accordées, la méthode demande à l'utilisateur de les accorder.
+     * Une fois les autorisations demandées, la méthode appelle la méthode {@link #onRequestPermissionsResult(int, String[], int[])} pour gérer le résultat.
+     */
     private void askAuthorisation() {
         if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Demandez la permission si elle n'est pas déjà accordée
@@ -155,6 +186,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         onRequestPermissionsResult(1, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, new int[]{PackageManager.PERMISSION_GRANTED});
     }
 
+
+    /**
+     * Méthode appelée lorsque l'utilisateur répond à une demande d'autorisation.
+     * Cette méthode est invoquée automatiquement en réponse à une demande d'autorisation précédente.
+     * Elle vérifie si la demande correspond à celle effectuée par {@link #askAuthorisation()}.
+     * Si la permission est accordée, elle modifie l'image du bouton de position pour indiquer l'accès à la localisation,
+     * puis lance un processus asynchrone pour obtenir la position actuelle de l'appareil.
+     *
+     * @param requestCode  Le code de demande de permission précédemment passé à {@link #askAuthorisation()}.
+     * @param permissions  Les permissions demandées.
+     * @param grantResults Les résultats des demandes de permission, indiquant si chaque permission a été accordée ou non.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -301,7 +344,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         afficherMarqueursSurCarte();
     }
 
-    // Méthode pour trouver un déchet par sa description (simulée)
+
+    /**
+     * Méthode pour trouver un déchet par sa description (simulée)
+     * @param toStringDechet
+     * @return
+     */
     private Dechet trouverDechetParToString(String toStringDechet) {
         for (Dechet dechet : listeDechets) {
             if (dechet.toString().equals(toStringDechet)) {
@@ -604,6 +652,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
         // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
         reinitialiserBoutons(boutons);
+
         // Mettre en surbrillance le bouton cliqué
         boutonClique.setBackgroundColor(getResources().getColor(R.color.green));
         // Ajoute un etat pour savoir rapidement si le bouton est selectionne
