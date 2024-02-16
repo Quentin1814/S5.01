@@ -439,6 +439,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             } else {
                 Marker newDechet = googleMap.addMarker(new MarkerOptions().position(latLng));
                 Dechet unDechet = new Dechet(  latLng.latitude, latLng.longitude,"petit" ,"Description");
+                listeDechets.add(unDechet);
                 // Ajoutez un marqueur à l'emplacement cliqué
                 googleMap.addMarker(new MarkerOptions().position(latLng));
                 // Mettre à jour les variables globales avec les dernières coordonnées
