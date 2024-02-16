@@ -27,6 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {
@@ -80,6 +82,11 @@ public class EvenementActivity extends AppCompatActivity {
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, response -> {
             try {
+                Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH)+1;
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                String date= year+"-"+day+"-"+month;
                 for (int i = 0; i < response.length(); i++) {
                     JSONObject jsonObject = response.getJSONObject(i);
                     String nom = jsonObject.getString("nom");
@@ -87,7 +94,7 @@ public class EvenementActivity extends AppCompatActivity {
                     String lieu = jsonObject.getString("lieu");
                     String description = jsonObject.getString("description");
 
-                    Evenement evenement = new Evenement(nom, photoBase64, lieu, description);
+                    Evenement evenement = new Evenement(nom,description,0, lieu,date,120,photoBase64);
                     evenementsList.add(evenement);
                 }
 

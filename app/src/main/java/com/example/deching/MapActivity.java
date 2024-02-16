@@ -380,9 +380,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
                         + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
                 .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
-                    // Appeler la méthode pour supprimer le déchet après confirmation
-                    supprimerDechet(dechet);
-                    afficherToast(getString(R.string.dechetDelete), R.color.red);
+                    // Afficher une boîte de dialogue de confirmation avant de supprimer le déchet
+                    new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.ok))
+                            .setMessage(R.string.msgConfirmation)
+                            .setPositiveButton(getString(R.string.deleteOk), (dialogInterface, i) -> {
+                                // Appeler la méthode pour supprimer le déchet après confirmation
+                                supprimerDechet(dechet);
+                                afficherToast(getString(R.string.dechetDelete), R.color.red);
+                            })
+                            .setNegativeButton(getString(R.string.deleteNo), null)
+                            .show();
                 })
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                 .show();

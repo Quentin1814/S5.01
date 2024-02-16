@@ -36,12 +36,12 @@ public class Evenement {
     /**
      * Date de l'événement
      */
-    private Date dateEvent;
+    private String dateEvent;
 
     /**
      * Objet "Utilisateur" qui a créé l'événement
      */
-    private Utilisateur monUtilisateur;
+    private int monUtilisateur;
 
     /**
      * Constructeur
@@ -52,7 +52,7 @@ public class Evenement {
      * @param dateEvent Date de l'événement
      * @param monUtilisateur Un utilisateur
      */
-    public Evenement(String nom, String description, int nbParticipantTotal, String lieu, Date dateEvent, Utilisateur monUtilisateur, String photoBase64) {
+    public Evenement(String nom, String description, int nbParticipantTotal, String lieu, String dateEvent, int monUtilisateur, String photoBase64) {
         id=0;
         this.nom = nom;
         this.description = description;
@@ -152,7 +152,7 @@ public class Evenement {
      * Retourne la date de l'événement
      * @return La date de l'événement
      */
-    public Date getDateEvent() {
+    public String getDateEvent() {
         return dateEvent;
     }
 
@@ -160,7 +160,7 @@ public class Evenement {
      * Modifie la date de l'événement
      * @param dateEvent Nouvelle date de l'événement
      */
-    public void setDateEvent(Date dateEvent) {
+    public void setDateEvent(String dateEvent) {
         this.dateEvent = dateEvent;
     }
 
@@ -168,7 +168,7 @@ public class Evenement {
      * Retourne un utilisateur
      * @return Un utilisateur
      */
-    public Utilisateur getMonUtilisateur() {
+    public int getMonUtilisateur() {
         return monUtilisateur;
     }
 
@@ -176,7 +176,7 @@ public class Evenement {
      * Modifie l'utilisateur
      * @param monUtilisateur Nouvel utilisateur
      */
-    public void setMonUtilisateur(Utilisateur monUtilisateur) {
+    public void setMonUtilisateur(int monUtilisateur) {
         this.monUtilisateur = monUtilisateur;
     }
 }
