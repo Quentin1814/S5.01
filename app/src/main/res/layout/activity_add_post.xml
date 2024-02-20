@@ -35,15 +35,6 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <ImageButton
-            android:id="@+id/imageButtonChat"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0"
-            android:background="@color/transparant"
-            android:contentDescription="@string/todo"
-            android:src="@drawable/icons8_bulle_vide___"
-            app:tint="@color/black" />
     </LinearLayout>
 
 
@@ -58,7 +49,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:padding="16dp"
-            android:text="@string/en_construction_homePage"
+            android:text="Bienvenue chez Déching!\n Cette page est en construction.\n Elle permettra l'ajout des posts."
             android:textSize="18sp" />
 
     </FrameLayout>
@@ -75,7 +66,7 @@
             android:layout_weight="1"
             android:background="@color/transparant"
             android:contentDescription="@string/todo"
-            android:src="@drawable/icons8_accueil_rempli___" />
+            android:src="@drawable/icons8_accueil_vide___" />
 
         <ImageButton
             android:id="@+id/imageButtonMap"
@@ -93,7 +84,7 @@
             android:layout_weight="1"
             android:background="@color/transparant"
             android:contentDescription="@string/todo"
-            android:src="@drawable/icons8_add_new_vide___" />
+            android:src="@drawable/icons8_add_new_rempli___" />
 
         <ImageButton
             android:id="@+id/imageButtonEvent"

@@ -2,17 +2,12 @@ package com.example.deching;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.imagecapture.JpegBytes2Image;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,15 +23,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {
-    private ImageButton boutonLogo;
     private ImageButton boutonHome;
     private ImageButton boutonMap;
     private ImageButton boutonAddPost;
-    private ImageButton boutonEvent;
     private ImageButton boutonProfile;
 
     private List<Evenement> evenementsList;
@@ -60,6 +52,16 @@ public class EvenementActivity extends AppCompatActivity {
         boutonHome.setOnClickListener(v -> {
             Intent intentHome = new Intent(EvenementActivity.this, HomePageActivity.class);
             startActivity(intentHome);
+        });
+        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
+        boutonAddPost.setOnClickListener(v -> {
+            Intent intentPost = new Intent(EvenementActivity.this, AddPostActivity.class);
+            startActivity(intentPost);
+        });
+        boutonProfile = (ImageButton) findViewById(R.id.imageButtonProfile);
+        boutonProfile.setOnClickListener(v -> {
+            Intent intentProfil = new Intent(EvenementActivity.this, ProfilActivity.class);
+            startActivity(intentProfil);
         });
         imageView = findViewById(R.id.imageView);
         nomTextView = findViewById(R.id.nomTextView);
@@ -128,10 +130,9 @@ public class EvenementActivity extends AppCompatActivity {
                 String description = evenement.getDescription();
 
                 // Ajouter les informations de l'événement au StringBuilder
-                evenementsStringBuilder.append("Nom").append(nom).append("\n");
-                evenementsStringBuilder.append("").append(photoBase64).append("\n");
-                evenementsStringBuilder.append("Lieu").append(lieu).append("\n");
-                evenementsStringBuilder.append("Description").append(description).append("\n\n");
+                evenementsStringBuilder.append("Nom :\t").append(nom).append("\n");
+                evenementsStringBuilder.append("Lieu : \t").append(lieu).append("\n");
+                evenementsStringBuilder.append("Description :\t").append(description).append("\n\n");
 
             }
             // Afficher toutes les informations des événements dans les TextView

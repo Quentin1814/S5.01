@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Déching</string>
     <string name="nom_app">Déching</string>
+    <string name="en_construction_homePage">Bienvenue chez Déching!\n Cette page est en construction.\n Elle contiendra les posts ajoutés depuis la page post.</string>
     <string name="MAPS_API_KEY">AIzaSyBXXc6qaSWh7PQE9pXkLeVfQv8mCJaXTnc</string>
     <string name="todo">TODO</string>
     <string name="logo_de_l_application">Logo de l\'application</string>

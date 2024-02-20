@@ -63,7 +63,10 @@ public class HomePageActivity extends AppCompatActivity {
 
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
-
+        boutonAddPost.setOnClickListener(v -> {
+            Intent intentAddPost=new Intent(HomePageActivity.this, AddPostActivity.class);
+            startActivity(intentAddPost);
+        });
         boutonMap=(ImageButton)findViewById(R.id.imageButtonMap);
         boutonMap.setOnClickListener(v -> {
             Intent intentMap=new Intent(HomePageActivity.this, MapActivity.class);

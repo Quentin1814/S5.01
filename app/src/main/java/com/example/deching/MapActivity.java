@@ -115,6 +115,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ImageButton boutonEvent;
         ImageButton boutonHome;
         ImageButton boutonLogo;
+        ImageButton boutonAddPost;
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -149,7 +150,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intent = new Intent(MapActivity.this, HomePageActivity.class);
             startActivity(intent);
         });
-
+        boutonAddPost = findViewById(R.id.imageButtonAddPost);
+        boutonAddPost.setOnClickListener(v -> {
+            Intent intentAddPost = new Intent(MapActivity.this, AddPostActivity.class);
+            startActivity(intentAddPost);
+        });
         // Chargement de la carte dans le fragment prévu à cet effet
         SupportMapFragment fragmentMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.layoutMap);
         try {
