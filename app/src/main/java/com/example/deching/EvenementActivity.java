@@ -32,12 +32,7 @@ public class EvenementActivity extends AppCompatActivity {
     private ImageButton boutonProfile;
 
     private List<Evenement> evenementsList;
-    private ImageView imageView;
     private TextView nomTextView;
-    private TextView lieuTextView;
-    private TextView descriptionTextView;
-    private RecyclerView eventRecyclerView;
-    private EventAdapter eventAdapter;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,18 +58,7 @@ public class EvenementActivity extends AppCompatActivity {
             Intent intentProfil = new Intent(EvenementActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
         });
-        imageView = findViewById(R.id.imageView);
-        nomTextView = findViewById(R.id.nomTextView);
-        lieuTextView = findViewById(R.id.lieuTextView);
-        descriptionTextView = findViewById(R.id.descriptionTextView);
 
-        evenementsList = new ArrayList<>();
-        eventRecyclerView = findViewById(R.id.eventRecyclerView);
-        eventRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        evenementsList = new ArrayList<>();
-        eventAdapter = new EventAdapter(evenementsList);
-        eventRecyclerView.setAdapter(eventAdapter);
         // Récupérer les événements depuis l'API
         getEvenementsFromAPI();
     }
