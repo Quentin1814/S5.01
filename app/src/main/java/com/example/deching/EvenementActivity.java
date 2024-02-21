@@ -116,7 +116,6 @@ public class EvenementActivity extends AppCompatActivity {
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, response -> {
             try {
-                Log.d("url",url);
                 for (int i = 0; i < response.length(); i++) {
                     JSONObject jsonObject = response.getJSONObject(i);
                     String nom = jsonObject.getString("nom");
@@ -128,7 +127,6 @@ public class EvenementActivity extends AppCompatActivity {
                     int nbParticipant=jsonObject.getInt("nbParticipantTotal");
                     Evenement evenement = new Evenement(nom,description,nbParticipant, lieu,date,idUser,photoBase64);
                     evenementsList.add(evenement);
-                    Log.d("event", evenement.toString());
                 }
 
                 // Après avoir récupéré tous les événements, affichez-les
