@@ -190,7 +190,7 @@
                     android:layout_weight="1" />
 
                 <Button
-                    android:id="@+id/button4"
+                    android:id="@+id/buttonEditProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -202,7 +202,7 @@
                     android:layout_weight="1" />
 
                 <Button
-                    android:id="@+id/klji"
+                    android:id="@+id/buttonAddFriend"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -229,24 +229,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
-                <Button
-                    android:id="@+id/boutonGril"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="prebh" />
-
                 <Space
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
-
-                <Button
-                    android:id="@+id/button2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Button" />
 
                 <Space
                     android:layout_width="wrap_content"

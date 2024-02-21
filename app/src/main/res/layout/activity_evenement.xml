@@ -32,7 +32,7 @@
             android:typeface="normal" />
     </LinearLayout>
     <FrameLayout
-        android:id="@+id/layoutMap"
+        android:id="@+id/layoutEvenement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1">

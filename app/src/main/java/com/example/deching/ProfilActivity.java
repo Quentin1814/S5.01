@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -26,6 +25,7 @@ public class ProfilActivity extends AppCompatActivity {
         ImageButton boutonCloseMenu;
         ImageButton boutonAddPost;
         ImageButton boutonProfile;
+        ImageButton boutonLogo;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
@@ -35,8 +35,13 @@ public class ProfilActivity extends AppCompatActivity {
         boutonCloseMenu = (ImageButton) findViewById(R.id.menuClose);
         boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
         boutonProfile = (ImageButton) findViewById(R.id.imageButtonProfile);
+        boutonLogo = findViewById(R.id.imageButtonLogo);
 
         SingletonUtilisateur utilisateur = SingletonUtilisateur.getInstance("");
+        boutonLogo.setOnClickListener(v -> {
+            Intent intentLogo = new Intent(ProfilActivity.this, HomePageActivity.class);
+            startActivity(intentLogo);
+        });
         boutonHome.setOnClickListener(v -> {
             Intent intentHome = new Intent(ProfilActivity.this, HomePageActivity.class);
             startActivity(intentHome);

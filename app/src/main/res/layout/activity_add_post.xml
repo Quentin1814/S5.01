@@ -37,7 +37,7 @@
 
 
     <FrameLayout
-        android:id="@+id/layoutMap"
+        android:id="@+id/layoutAddPost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1">
@@ -47,7 +47,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:padding="16dp"
-            android:text="Bienvenue chez Déching!\n Cette page est en construction.\n Elle permettra l'ajout des posts."
+            android:text="@string/en_construction_addPost"
             android:textSize="18sp" />
 
     </FrameLayout>
