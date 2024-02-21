@@ -5,9 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -36,6 +39,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
+import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -111,9 +115,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Button boutonSignaler;
         ImageButton boutonEvent;
         ImageButton boutonHome;
-        ImageButton boutonLogo;
+        ImageButton boutonMap;
         ImageButton boutonAddPost;
-
+        ImageButton boutonLogo;
+        ImageButton boutonProfil;
+        ImageButton boutonExit;
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
 
@@ -152,6 +158,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intentAddPost = new Intent(MapActivity.this, AddPostActivity.class);
             startActivity(intentAddPost);
         });
+        boutonProfil=findViewById(R.id.imageButtonProfile);
+        boutonProfil.setOnClickListener(v -> {
+            Intent intentProfile = new Intent(MapActivity.this, ProfilActivity.class);
+            startActivity(intentProfile);
+        });
+
         // Chargement de la carte dans le fragment prévu à cet effet
         SupportMapFragment fragmentMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.layoutMap);
         try {
@@ -169,6 +181,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 
         askAuthorisation();
+        boutonMap = (ImageButton) findViewById(R.id.imageButtonMap);
+        boutonExit = (ImageButton) findViewById(R.id.dechetClose);
+
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonProfil.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonExit.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+        } else {
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonProfil.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonExit.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+        }
     }
 
     /**
@@ -178,13 +209,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Une fois les autorisations demandées, la méthode appelle la méthode {@link #onRequestPermissionsResult(int, String[], int[])} pour gérer le résultat.
      */
     private void askAuthorisation() {
+        // Vérifie si l'autorisation d'accéder à la localisation fine n'est pas accordée
         if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Demandez la permission si elle n'est pas déjà accordée
+            // Demande la permission d'accéder à la localisation fine
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        } else if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Demandez la permission si elle n'est pas déjà accordée
+        }
+        // Vérifie si l'autorisation d'accéder à la localisation grossière n'est pas accordée
+        else if (ContextCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Demande la permission d'accéder à la localisation grossière
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
+        // Appelle onRequestPermissionsResult pour gérer le résultat de la demande d'autorisation
         onRequestPermissionsResult(1, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, new int[]{PackageManager.PERMISSION_GRANTED});
     }
 
@@ -203,39 +238,133 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // Vérifie si la demande de permission correspond à celle effectuée par askAuthorisation() et si la permission est accordée
         if (requestCode == 1 && (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-            // change le src de l'imageButtonPosition
+            // Change l'image du bouton de position pour indiquer l'accès à la localisation
             boutonPosition = findViewById(R.id.imageButtonPosition);
             boutonPosition.setImageResource(R.drawable.position_clicked);
-            // Permission was granted, launch the runnable
+            // La permission a été accordée, lance le processus asynchrone pour obtenir la position actuelle de l'appareil
             handler.post(runnableCode);
+            handlerMap.post(runnableMap);
+            handlerMap.post(runnableDechet);
         }
     }
 
+    private final Handler handlerMap = new Handler();
+
+    private final Runnable runnableMap = new Runnable() {
+        @Override
+        public void run() {
+            // Mets à jour la map pour les déchets
+            updateMap();
+            handler.postDelayed(this, 5000);
+        }
+    };
+
+    public Runnable getRunnableMap() {
+        return runnableMap;
+    }
+
+    private void updateMap() {
+        if (!listeDechets.isEmpty()) {
+            googleMap.clear();
+            // Ajouter des marqueurs pour chaque déchet dans la liste
+            for (Dechet dechet : listeDechets) {
+                LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
+            }
+            // Ajouter un listener de clic sur les marqueurs
+            googleMap.setOnMarkerClickListener(marker -> {
+                // Récupérer le déchet associé au marqueur
+                Dechet dechetSelectionne = trouverDechetParToString(marker.getTitle());
+                // Récupérez les informations du marqueur à partir de la balise
+                Dechet markerInfo = (Dechet) marker.getTag();
+
+                // Vérifiez si la balise contient des informations
+                if (markerInfo != null) {
+                    // Utilisez les informations du marqueur comme nécessaire
+                    Log.d("Marker Clicked", "ID: " + markerInfo.getId() + ", Latitude: " + markerInfo.getLatitude() +
+                            ", Longitude: " + markerInfo.getLongitude() + ", Description: " + markerInfo.getDescription());
+                }
+
+                // Afficher une boîte de dialogue ou exécuter l'action appropriée
+                if (dechetSelectionne != null) {
+                    // Afficher les détails du déchet
+                    afficherDetailsDechet(dechetSelectionne);
+                }
+
+                return true;
+            });
+        }
+    }
+
+    private final Runnable runnableDechet = new Runnable() {
+        @Override
+        public void run() {
+            reinitialiseListeDechets();
+            handler.postDelayed(this, 60000);
+        }
+    };
+    private void reinitialiseListeDechets(){
+        listeDechets.clear();
+        getAllZoneDechet(listeDechets::addAll);
+    }
+
+    /**
+     * Gestionnaire utilisé pour programmer et exécuter des actions différées dans le thread de l'interface utilisateur.
+     * Utilisé dans ce contexte pour exécuter périodiquement une tâche pour mettre à jour la carte avec la position de l'utilisateur.
+     */
     private final Handler handler = new Handler();
+
+    /**
+     * Tâche exécutable périodiquement par le gestionnaire d'actions différées.
+     * Cette tâche est responsable de centrer la carte sur la position actuelle de l'utilisateur et de planifier son exécution future.
+     * Elle est exécutée à intervalles réguliers pour maintenir la mise à jour de la position de l'utilisateur sur la carte.
+     */
     private final Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
+            // Centre la carte sur la position de l'utilisateur
             centerMapOnMyLocation();
+            // Planifie l'exécution de cette tâche après un délai de 4000 millisecondes (4 secondes)
             handler.postDelayed(this, 4000);
         }
     };
 
+    /**
+     * Méthode appelée lorsque l'activité entre dans l'état "reprise".
+     * Cela se produit après que l'activité a été arrêtée ou masquée et revient à l'avant-plan.
+     * Dans cette méthode, le gestionnaire d'actions différées est utilisé pour planifier l'exécution périodique de la tâche {@link #runnableCode},
+     * qui met à jour la carte avec la position de l'utilisateur.
+     */
     @Override
     protected void onResume() {
         super.onResume();
+        // Planifie l'exécution périodique de la tâche pour mettre à jour la carte avec la position de l'utilisateur
         handler.post(runnableCode);
     }
 
+    /**
+     * Méthode appelée lorsque l'activité entre dans l'état "pause".
+     * Cela se produit lorsque l'activité n'est plus en premier plan, par exemple lorsqu'elle est masquée par une autre activité.
+     * Dans cette méthode, l'exécution de la tâche périodique {@link #runnableCode} est arrêtée,
+     * et l'image du bouton de position est réinitialisée pour indiquer que la localisation n'est pas activée.
+     */
     @Override
     protected void onPause() {
         super.onPause();
+        // Arrête l'exécution périodique de la tâche pour mettre à jour la carte avec la position de l'utilisateur
         handler.removeCallbacks(runnableCode);
-        // change le src de l'imageButtonPosition
+        // Change l'image du bouton de position pour indiquer que la localisation n'est pas activée
         boutonPosition = findViewById(R.id.imageButtonPosition);
         boutonPosition.setImageResource(R.drawable.position_not_clicked);
     }
 
+    /**
+     * Centre la carte sur la dernière position connue de l'utilisateur en récupérant sa position actuelle.
+     * Utilise le fournisseur de localisation fusionnée (FusedLocationProviderClient) pour obtenir la dernière position.
+     * Une fois la position récupérée, la caméra est animée pour centrer la carte sur cette position.
+     */
     @SuppressLint("MissingPermission")
     private void centerMapOnMyLocation() {
         // Récupérer la dernière position connue
@@ -249,6 +378,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
+    /**
+     * Anime la caméra vers une nouvelle position sur la carte avec une transition fluide.
+     *
+     * @param map         La carte Google Maps sur laquelle l'animation doit être effectuée.
+     * @param newPosition La nouvelle position à laquelle la caméra doit être centrée.
+     */
     private void animateCameraToPosition(GoogleMap map, LatLng newPosition) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(newPosition)   // Sets the new camera position
@@ -260,6 +395,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000, null);
     }
 
+    /**
+     * Méthode appelée lorsque la carte Google est prête à être utilisée.
+     * Initialise la carte avec des marqueurs et des écouteurs appropriés.
+     *
+     * @param googleMap L'objet GoogleMap qui représente la carte Google.
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap=googleMap;
@@ -289,8 +430,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 afficherToast(getString(R.string.dechetAdd), R.color.green);
             }
         });
-
-        listeDechets.addAll(listeDechetsInit);
 
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
@@ -330,7 +469,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             // Afficher une boîte de dialogue ou exécuter l'action appropriée
             if (dechetSelectionne != null) {
-               // Afficher les détails du déchet
+                // Afficher les détails du déchet
                 afficherDetailsDechet(dechetSelectionne);
             }
 
@@ -338,12 +477,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-    // Méthode pour supprimer un déchet de la liste (simulée)
+
+    /**
+     * Méthode pour supprimer un déchet de la liste (simulée)
+     * @param dechet
+     */
     private void supprimerDechet(Dechet dechet) {
         listeDechets.remove(dechet);
         deleteZoneDechet(dechet);
-        // Mettez à jour l'affichage sur la carte
-        afficherMarqueursSurCarte();
+        updateMap();
     }
 
 
@@ -361,7 +503,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return null;
     }
 
-    // Méthode pour afficher des marqueurs sur la carte
+    /**
+     * Méthode pour afficher des marqueurs sur la carte
+     */
     private void afficherMarqueursSurCarte() {
         if (googleMap != null) {
             googleMap.clear(); // Efface les marqueurs existants
@@ -373,6 +517,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
+
+    /**
+     * Méthode qui permet l'affichage des details du dechet selectionne
+     * @param dechet
+     */
     // affichage des details du dechet selectionne
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -397,7 +546,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                 .show();
     }
-
+    /**
+     * Méthode appelée lorsque l'activité reçoit le résultat d'une activité de caméra lancée pour prendre une photo.
+     * Affiche la photo capturée dans une image view et effectue des opérations de traitement sur celle-ci.
+     *
+     * @param requestCode Le code de demande d'activité utilisé pour identifier la requête de caméra.
+     * @param resultCode  Le code de résultat indiquant le succès ou l'échec de l'activité de caméra.
+     * @param data        Les données associées au résultat de l'activité de caméra, telles que l'image capturée.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -438,13 +594,33 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Liste des différentes tailles des déchets
+     */
     private final List<Button> boutonsTaille = new ArrayList<>();
+
+    /**
+     * Liste des différents détails des déchets
+     */
     private final List<Button> boutonsDetails = new ArrayList<>();
+
+    /**
+     * Liste des différents détails des déchets
+     */
     private final List<Button> boutonsDetails2 = new ArrayList<>();
 
+    /**
+     * Méthode qui permet d'afficher le popup sur la carte
+     */
     private void afficherPopup() {
         afficherPopup(0.0, 0.0);
     }
+
+    /**
+     * Méthode qui permet d'afficher la popup sur la carte à un endroit précis
+     * @param lat
+     * @param Lng
+     */
     private void afficherPopup(Double lat, Double Lng) {
         // Récupérer tous les frame layouts
         FrameLayout layoutMap = findViewById(R.id.map);
@@ -570,7 +746,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    // Méthode générique pour gérer le clic des boutons du popup
+    /**
+     * Méthode générique pour configurer le clic des boutons du popup.
+     *
+     * @param bouton        Le bouton sur lequel configurer le clic.
+     * @param boutons       La liste de tous les boutons du popup.
+     * @param messageResId  L'ID de ressource du message à afficher lors du clic sur le bouton.
+     * @param couleurResId  L'ID de ressource de la couleur de fond du Toast affiché lors du clic sur le bouton.
+     */
     private void configurerBouton(Button bouton, List<Button> boutons, int messageResId, int couleurResId) {
         bouton.setOnClickListener(v -> {
             mettreEnSurbrillance(boutons, bouton);
@@ -578,6 +761,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
+    /**
+     * Met en surbrillance un bouton spécifique dans une liste de boutons en fonction de la valeur d'un paramètre donné.
+     *
+     * @param parameter   Le nom du paramètre pour lequel la valeur est vérifiée.
+     * @param parameters  La carte de paramètres contenant les valeurs associées à chaque paramètre.
+     * @param buttons     La liste de boutons parmi lesquels rechercher et mettre en surbrillance le bouton.
+     */
     private void highlightButtons(String parameter, Map<String, String> parameters, List<Button> buttons) {
         if (parameters.containsKey(parameter)) {
             String paramValue = parameters.get(parameter);
@@ -590,6 +780,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Affiche une photo à partir des préférences partagées dans un ImageView spécifié.
+     *
+     * @param displayPhoto L'ImageView dans lequel afficher la photo.
+     */
     private void displayPhotoFromSharedPreferences(ImageView displayPhoto) {
         sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
         String imagePath = sharedPreferences.getString(getString(R.string.image_path), "");
@@ -597,10 +792,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         displayPhoto.setImageBitmap(bitmap);
     }
 
+    /**
+     * Définit le texte d'un EditText avec le texte spécifié.
+     *
+     * @param commentaire     L'EditText dans lequel définir le texte.
+     * @param commentaireText Le texte à définir dans l'EditText.
+     */
     private void setCommentaireText(EditText commentaire, String commentaireText) {
         commentaire.setText(commentaireText);
     }
 
+    /**
+     * Méthode pour gérer le clic sur le bouton "Valider"
+     */
     // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
     private void onValiderClick() {
         String tailleSelectionnee = popupParameters.get("Taille");
@@ -659,16 +863,27 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * Met en surbrillance un bouton spécifié dans une liste de boutons en ajustant ses couleurs d'arrière-plan.
+     *
+     * @param boutons       La liste de boutons dans laquelle rechercher le bouton à mettre en surbrillance.
+     * @param boutonClique  Le bouton à mettre en surbrillance.
+     */
     private void mettreEnSurbrillance(List<Button> boutons, Button boutonClique) {
         // Parcourir la liste de boutons et retirer la surbrillance mais pas le gris
         reinitialiserBoutons(boutons);
 
         // Mettre en surbrillance le bouton cliqué
         boutonClique.setBackgroundColor(getResources().getColor(R.color.green));
-        // Ajoute un etat pour savoir rapidement si le bouton est selectionne
+        // Ajouter un état pour savoir rapidement si le bouton est sélectionné
         boutonClique.setSelected(true);
     }
 
+    /**
+     * Réinitialise les couleurs d'arrière-plan de tous les boutons spécifiés dans une liste de boutons.
+     *
+     * @param boutons   La liste de boutons à réinitialiser.
+     */
     private void reinitialiserBoutons(List<Button> boutons) {
         for (Button bouton : boutons) {
             bouton.setBackgroundColor(getResources().getColor(R.color.light_gray));
@@ -676,21 +891,34 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    // Méthode pour afficher une boîte de dialogue d'alerte standard
+    /**
+     * Affiche une boîte de dialogue d'alerte standard avec un message spécifié et un bouton "OK".
+     *
+     * @param message Le message à afficher dans la boîte de dialogue.
+     */
     private void afficherAlerte(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> {
-
                 })
                 .show();
     }
 
+    /**
+     * Retourne une chaîne de caractères représentant la position actuelle, avec les coordonnées de latitude et de longitude.
+     *
+     * @return Une chaîne de caractères représentant la position actuelle sous la forme "Latitude: <latitude>, Longitude: <longitude>".
+     */
     private String getPosition() {
         return getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.coma) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude;
     }
 
-    // Méthode pour récupérer le texte du bouton sélectionné
+    /**
+     * Retourne le texte du bouton sélectionné dans une liste de boutons.
+     *
+     * @param boutons La liste des boutons parmi lesquels rechercher le bouton sélectionné.
+     * @return Le texte du bouton sélectionné, ou une chaîne vide si aucun bouton n'est sélectionné.
+     */
     private String getBoutonSelectionne(List<Button> boutons) {
         for (Button bouton : boutons) {
             // Vérifier si le bouton est sélectionné
@@ -701,6 +929,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return "";
     }
 
+
+    /**
+     * Affiche un message Toast personnalisé avec le texte spécifié et le fond de couleur spécifié.
+     *
+     * @param texteNotification Le texte à afficher dans le Toast.
+     * @param couleurBackground La couleur de fond du Toast.
+     */
     private void afficherToast(String texteNotification, int couleurBackground) {
         // Créer un layout personnalisé pour le Toast
         LinearLayout toastLayout = new LinearLayout(this);
@@ -724,49 +959,79 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toast.show();
     }
 
-    //Méthode qui permet d'ajouter en base de données un déchet créé sur la map
+    /**
+     * Ajoute un déchet à la base de données à partir des informations spécifiées.
+     *
+     * @param unDechet Le déchet à ajouter à la base de données.
+     */
     protected void addZoneDechet(Dechet unDechet){
 
         try {
+            // Création d'une file d'attente de requêtes Volley
             RequestQueue queue;
             queue = Volley.newRequestQueue(this);
             queue.start();
 
+            // Création d'un objet JSON contenant les informations du déchet
             JSONObject objetJSON = new JSONObject();
             objetJSON.put("id",unDechet.getId());
             objetJSON.put("latitude",unDechet.getLatitude());
             objetJSON.put("longitude",unDechet.getLongitude());
             objetJSON.put("taille",unDechet.getTaille());
             objetJSON.put("description",unDechet.getDescription());
+            // ID de l'événement associé au déchet
             objetJSON.put("idEvenement","3");
+            // ID de la collecte associée au déchet
             objetJSON.put("idCollecte","2");
+            // ID de l'utilisateur associé au déchet
             objetJSON.put("idUtilisateur","1");
 
+            // URL de l'API pour ajouter un déchet à la base de données
             String url = "https://deching.alwaysdata.net/actions/Dechet.php";
+
+            // Création de la requête JSON avec la méthode POST
             JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url, objetJSON, reponse -> {
+                // Code à exécuter en cas de succès de la requête
+                // (peut être laissé vide, ou peut inclure des actions supplémentaires si nécessaire)
             },
-                error -> {
-                }) {
+                    error -> {
+                        // Code à exécuter en cas d'erreur lors de la requête
+                        // (peut être laissé vide, ou peut inclure des actions supplémentaires si nécessaire)
+                    }) {
             };
+
+            // Ajout de la requête à la file d'attente
             queue.add(jsonRequest);
         } catch (Exception exception){
+            // Gestion des exceptions lors de la création de la requête
             Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
         }
 
     }
-    //Méthode qui permet de récupérer tous les déchets enregistrés en base de données sous forme de collection
+
+    /**
+     * Récupère tous les déchets enregistrés en base de données sous forme de collection.
+     *
+     * @param callback Callback à exécuter une fois les déchets récupérés.
+     */
     protected void getAllZoneDechet(final VolleyCallback callback){
+        // Création d'une file d'attente de requêtes Volley
         RequestQueue queue;
         queue = Volley.newRequestQueue(this);
         queue.start();
 
+        // Initialisation d'une liste pour stocker les déchets récupérés
         ArrayList<Dechet> dechetsRecuperes = new ArrayList<>();
 
+        // URL de l'API pour récupérer tous les déchets
         String url = "https://deching.alwaysdata.net/actions/Dechet.php";
+
+        // Création de la requête JSON avec la méthode GET
         JsonArrayRequest jsonRequest = new JsonArrayRequest( url, reponse -> {
-            // code à exécuter une fois les données chargées
+            // Code à exécuter une fois les données chargées
             for(int i=0;i < reponse.length();i++){
                 try {
+                    // Récupération des informations de chaque déchet dans la réponse JSON
                     JSONObject unDechetJSON = reponse.getJSONObject(i);
                     int id = unDechetJSON.getInt("id");
                     double latitude = unDechetJSON.getDouble("latitude");
@@ -774,21 +1039,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     String taille = unDechetJSON.getString("taille");
                     String description = unDechetJSON.getString("description");
 
+                    // Création d'un objet Dechet avec les informations récupérées
                     Dechet unDechet = new Dechet(id,latitude,longitude,taille,description);
 
+                    // Ajout du déchet à la liste
                     dechetsRecuperes.add(unDechet);
 
                 } catch (JSONException e) {
+                    // Gestion des exceptions lors de l'analyse de la réponse JSON
                     throw new RuntimeException(e);
                 }
             }
+            // Appel du callback avec la liste de déchets récupérés en paramètre
             callback.onSuccess(dechetsRecuperes);
         },
                 error -> {
-                    // code à exécuter lorsqu'une erreur de communication avec le serveur est détectée
+                    // Code à exécuter lorsqu'une erreur de communication avec le serveur est détectée
                     Log.e("erreur récupération des déchets", Objects.requireNonNull(error.getMessage()));
                 }) {
         };
+        // Ajout de la requête à la file d'attente
         queue.add(jsonRequest);
     }
     //Méthode qui permet de supprimer un déchet enregistré en base de données via son identifiant
@@ -812,4 +1082,3 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 }
-

@@ -2,14 +2,16 @@ package com.example.deching;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,16 +23,46 @@ import com.example.deching.Modele.Modele.Evenement;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 public class EvenementActivity extends AppCompatActivity {
+    /**
+     * Logo de l'application
+     */
+    private ImageButton boutonLogo;
+
+    /**
+     * Bouton de la page d'accueil
+     */
     private ImageButton boutonHome;
+
+    /**
+     * Bouton de la carte
+     */
     private ImageButton boutonMap;
+
+    /**
+     * Bouton d'ajout de post
+     */
     private ImageButton boutonAddPost;
+
+    /**
+     * Bouton des événements
+     */
+    private ImageButton boutonEvent;
+
+    /**
+     * Bouton du profil
+     */
     private ImageButton boutonProfile;
 
+
+    /**
+     * Méthode appelée lors de la création de l'activité.
+     *
+     * @param savedInstanceState données permettant de reconstruire l'activité lorsqu'elle est recréée, si null alors aucune donnée n'est disponible.
+     */
     private List<Evenement> evenementsList;
     private TextView nomTextView;
     @SuppressLint("MissingInflatedId")
@@ -58,7 +90,20 @@ public class EvenementActivity extends AppCompatActivity {
             Intent intentProfil = new Intent(EvenementActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
         });
-
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonProfile.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+        } else {
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonProfile.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+        }
         // Récupérer les événements depuis l'API
         getEvenementsFromAPI();
     }
