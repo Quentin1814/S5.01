@@ -80,11 +80,14 @@
     <string name="posts">Posts</string>
     <string name="evenements">Événements</string>
     <string name="suivis">Suivis</string>
+
     <string name="descriptionVide">Description vide ! Ajoutez-en une !</string>
+
     <string name="boutonEditer">Editer le profil</string>
     <string name="boutonAjouter">Ajouter un ami</string>
     <string name="menu">À propos</string>
     <string name="credit">Crédits</string>
+
     <string name="creditValue">Cette application a été développée sur l\'année 2023-2024 au sein du département Informatique de l\'IUT de Bayonne et du Pays Basque par un groupe d\'étudiants en troisième année de BUT Informatique. Cette application a été développée sur un total de 36 jours / homme par \:
         \n \- DUJARDIN Esteban
         \n \- FALL Daro
@@ -93,6 +96,7 @@
         \n \- ROBERT Quentin
         \n
         \nCe projet a été commandité par l\'association Déching et avait pour enseignant-tuteur MARQUESUZAÀ Christophe.</string>
+  
     <string name="versionApp">Version de l\'application</string>
 
 
