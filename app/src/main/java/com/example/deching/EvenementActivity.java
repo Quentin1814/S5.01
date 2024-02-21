@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 
 import android.widget.TextView;
@@ -23,7 +24,7 @@ import com.example.deching.Modele.Modele.Evenement;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
 /**
  * Classe représentant la page des événements
@@ -87,6 +88,12 @@ public class EvenementActivity extends AppCompatActivity {
             Intent intentProfil = new Intent(EvenementActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
         });
+
+        // Récupérer les événements depuis l'API
+        evenementsList = new ArrayList<>();
+        nomTextView = findViewById(R.id.nomTextView);
+        getEvenementsFromAPI();
+
         boutonEvent= (ImageButton) findViewById(R.id.imageButtonEvent);
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
@@ -102,8 +109,6 @@ public class EvenementActivity extends AppCompatActivity {
             boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
             boutonProfile.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
         }
-        // Récupérer les événements depuis l'API
-        getEvenementsFromAPI();
     }
 
     private void getEvenementsFromAPI() {
@@ -111,20 +116,19 @@ public class EvenementActivity extends AppCompatActivity {
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, response -> {
             try {
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH)+1;
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                String date= year+"-"+day+"-"+month;
+                Log.d("url",url);
                 for (int i = 0; i < response.length(); i++) {
                     JSONObject jsonObject = response.getJSONObject(i);
                     String nom = jsonObject.getString("nom");
-                    String photoBase64 = String.valueOf(R.drawable.empty);
+                    String photoBase64 = jsonObject.getString("photo");
                     String lieu = jsonObject.getString("lieu");
                     String description = jsonObject.getString("description");
-
-                    Evenement evenement = new Evenement(nom,description,0, lieu,date,120,photoBase64);
+                    String date=jsonObject.getString("dateEvent");
+                    int idUser=jsonObject.getInt("idUtilisateur");
+                    int nbParticipant=jsonObject.getInt("nbParticipantTotal");
+                    Evenement evenement = new Evenement(nom,description,nbParticipant, lieu,date,idUser,photoBase64);
                     evenementsList.add(evenement);
+                    Log.d("event", evenement.toString());
                 }
 
                 // Après avoir récupéré tous les événements, affichez-les
@@ -152,7 +156,7 @@ public class EvenementActivity extends AppCompatActivity {
 
             for (Evenement evenement : evenementsList) {
                 String nom = evenement.getNom();
-                String photoBase64 = evenement.getPhotoBase64();
+//                String photoBase64 = evenement.getPhotoBase64();
                 String lieu = evenement.getLieu();
                 String description = evenement.getDescription();
 
