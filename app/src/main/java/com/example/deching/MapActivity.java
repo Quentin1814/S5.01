@@ -61,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Calendar;
 
 /**
  * Classe représentant la page de la carte
@@ -175,7 +176,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intent = new Intent(MapActivity.this, HomePageActivity.class);
             startActivity(intent);
         });
-
+        boutonAddPost = findViewById(R.id.imageButtonAddPost);
+        boutonAddPost.setOnClickListener(v -> {
+            Intent intentAddPost = new Intent(MapActivity.this, AddPostActivity.class);
+            startActivity(intentAddPost);
+        });
         // Chargement de la carte dans le fragment prévu à cet effet
         SupportMapFragment fragmentMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.layoutMap);
         try {
@@ -490,7 +495,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             // Afficher une boîte de dialogue ou exécuter l'action appropriée
             if (dechetSelectionne != null) {
-               // Afficher les détails du déchet
+                // Afficher les détails du déchet
                 afficherDetailsDechet(dechetSelectionne);
             }
 
@@ -546,17 +551,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
-            .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
-                    + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
-                    + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
-                    + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
-            .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
-                // Appeler la méthode pour supprimer le déchet après confirmation
-                supprimerDechet(dechet);
-                afficherToast(getString(R.string.dechetDelete), R.color.red);
-            })
-            .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-            .show();
+                .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
+                        + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
+                        + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
+                        + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
+                .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
+
+                    // Afficher une boîte de dialogue de confirmation avant de supprimer le déchet
+                    new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.ok))
+                            .setMessage(R.string.msgConfirmation)
+                            .setPositiveButton(getString(R.string.deleteOk), (dialogInterface, i) -> {
+                                // Appeler la méthode pour supprimer le déchet après confirmation
+                                supprimerDechet(dechet);
+                                afficherToast(getString(R.string.dechetDelete), R.color.red);
+                            })
+                            .setNegativeButton(getString(R.string.deleteNo), null)
+                            .show();
+                })
+                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     /**
@@ -837,6 +851,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Dechet nouveauDechet = new Dechet(lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
         addZoneDechet(nouveauDechet);
+        creerEvenement(nouveauDechet);
         afficherMarqueursSurCarte();
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
@@ -846,7 +861,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         popupParameters = null;
     }
+    // creation d'un evenement quand on clique sur le bouton valider
+    private void creerEvenement(Dechet nouveauDechet) {
+        // recuperer la date actuelle lors de la creation
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH)+1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        // Créer un objet JSON avec les données de l'événement
+        try {
+            RequestQueue queue;
+            queue = Volley.newRequestQueue(this);
+            queue.start();
+            JSONObject eventData = new JSONObject();
+            int i=1;
+            eventData.put("nom", "Recolting "+ i);
+            eventData.put("description", nouveauDechet.getDescription() + "," + nouveauDechet.getTaille());
+            eventData.put("nbParticipantTotal",0);
+            eventData.put("lieu", nouveauDechet.getLatitude()+"/"+nouveauDechet.getLongitude());
+            eventData.put("dateEvent", year+ "-"+month+"-"+day);
+            eventData.put("photo", null);
+            eventData.put("idUtilisateur",120);
+            // Envoyer les données à l'API via une requête POST avec Volley
+            String url = "https://deching.alwaysdata.net/actions/Evenement.php";
+            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url, eventData, reponse -> {
+            },
+                    error -> {
+                    }) {
+            };
+            queue.add(jsonRequest);
+            i++;
+        } catch (Exception exception){
+            Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
+        }
 
+    }
     /**
      * Met en surbrillance un bouton spécifié dans une liste de boutons en ajustant ses couleurs d'arrière-plan.
      *
@@ -884,24 +933,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> {
-                    // Code à exécuter lorsque l'utilisateur clique sur OK
-                /*
-                    // Exemple de code à exécuter lors du clic sur OK :
-                    Evenement nouvelEvenement = new Evenement(
-                            0,
-                            "Recolting",
-                            "Événement associé au déchet : " + dernierDechetClique.description,
-                             1,
-                            lastClickedLatitude + " " + lastClickedLongitude,
-                            "00/00/0000"
-                    );
-
-                    // Ajouter le nouvel événement à la liste
-                    listeEvenements.add(nouvelEvenement);
-
-                    // Afficher un Toast indiquant que Recolting a été ajouté avec succès
-                    afficherToast("Recolting ajouté avec succès", R.color.green);
-                 */
                 })
                 .show();
     }
@@ -1084,4 +1115,3 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 }
-

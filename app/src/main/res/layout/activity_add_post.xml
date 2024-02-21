@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:orientation="vertical"
-    tools:context=".EvenementActivity">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/imageButtonLogo"
@@ -21,6 +18,7 @@
             android:background="@color/transparant"
             android:contentDescription="@string/logo_de_l_application"
             android:src="@drawable/ic_launcher_foreground" />
+
         <TextView
             android:id="@+id/textViewAppName"
             android:layout_width="wrap_content"
@@ -29,60 +27,32 @@
             android:text="@string/nom_app"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:typeface="normal" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
     </LinearLayout>
+
+
     <FrameLayout
         android:id="@+id/layoutMap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1">
-        <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/eventContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/eventRecyclerView"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Bienvenue chez Déching!\n Cette page est en construction.\n Elle permettra l'ajout des posts."
+            android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/nomTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp" />
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/dechetPhoto"
-            android:src="@drawable/placeholder_image"
-            android:visibility="visible" />
-
-        <TextView
-            android:id="@+id/lieuTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/descriptionTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginTop="8dp" />
-    </LinearLayout>
-        </ScrollView>
     </FrameLayout>
 
-        <LinearLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -112,7 +82,7 @@
             android:layout_weight="1"
             android:background="@color/transparant"
             android:contentDescription="@string/todo"
-            android:src="@drawable/icons8_add_new_vide___" />
+            android:src="@drawable/icons8_add_new_rempli___" />
 
         <ImageButton
             android:id="@+id/imageButtonEvent"
@@ -121,7 +91,7 @@
             android:layout_weight="1"
             android:background="@color/transparant"
             android:contentDescription="@string/todo"
-            android:src="@drawable/icons8_month_rempli___" />
+            android:src="@drawable/icons8_month_vide___" />
 
         <ImageButton
             android:id="@+id/imageButtonProfile"
@@ -132,5 +102,4 @@
             android:contentDescription="@string/todo"
             android:src="@drawable/icons8_account_vide___" />
     </LinearLayout>
-
 </LinearLayout>

@@ -49,6 +49,10 @@ public class ProfilActivity extends AppCompatActivity {
             Intent intentEvent = new Intent(ProfilActivity.this, EvenementActivity.class);
             startActivity(intentEvent);
         });
+        boutonAddPost.setOnClickListener(v -> {
+            Intent intentAddPost = new Intent(ProfilActivity.this, AddPostActivity.class);
+            startActivity(intentAddPost);
+        });
         TextView nomUtilisateur = (TextView) findViewById(R.id.usernameTextView);
         nomUtilisateur.setText(utilisateur.getNomUtilisateur());
 

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Déching</string>
     <string name="nom_app">Déching</string>
+    <string name="en_construction_homePage">Bienvenue chez Déching!\n Cette page est en construction.\n Elle contiendra les posts ajoutés depuis la page post.</string>
     <string name="MAPS_API_KEY">AIzaSyBXXc6qaSWh7PQE9pXkLeVfQv8mCJaXTnc</string>
     <string name="todo">TODO</string>
     <string name="logo_de_l_application">Logo de l\'application</string>
@@ -40,6 +41,10 @@
         \nMerci de votre signalement.</string>
 
     <string name="delete">Supprimer</string>
+    <string name="deleteOk">Oui</string>
+    <string name="ok">Confirmation</string>
+    <string name="msgConfirmation">Êtes-vous sûr de vouloir supprimer ce déchet ?</string>
+    <string name="deleteNo">Non</string>
     <string name="cancel">Annuler</string>
 
     <string name="dechetID">ID</string>
