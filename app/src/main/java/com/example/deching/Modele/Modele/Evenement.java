@@ -6,6 +6,8 @@ import java.sql.Date;
  * Classe représentant un Evenement
  */
 public class Evenement {
+    private String photoBase64;
+    // image de l'événement
     /**
      * Identifiant de l'événement dans la base de données
      */
@@ -34,12 +36,12 @@ public class Evenement {
     /**
      * Date de l'événement
      */
-    private Date dateEvent;
+    private String dateEvent;
 
     /**
      * Objet "Utilisateur" qui a créé l'événement
      */
-    private Utilisateur monUtilisateur;
+    private int monUtilisateur;
 
     /**
      * Constructeur
@@ -50,7 +52,7 @@ public class Evenement {
      * @param dateEvent Date de l'événement
      * @param monUtilisateur Un utilisateur
      */
-    public Evenement(String nom, String description, int nbParticipantTotal, String lieu, Date dateEvent, Utilisateur monUtilisateur) {
+    public Evenement(String nom, String description, int nbParticipantTotal, String lieu, String dateEvent, int monUtilisateur, String photoBase64) {
         id=0;
         this.nom = nom;
         this.description = description;
@@ -58,12 +60,18 @@ public class Evenement {
         this.lieu = lieu;
         this.dateEvent = dateEvent;
         this.monUtilisateur = monUtilisateur;
+        this.photoBase64=photoBase64;
     }
 
     /**
      * Retourne l'identifiant de l'événement
      * @return L'identifiant de l'événement
      */
+
+    public String getPhotoBase64() {
+        return photoBase64;
+    }
+
     public int getId() {
         return id;
     }
@@ -144,7 +152,7 @@ public class Evenement {
      * Retourne la date de l'événement
      * @return La date de l'événement
      */
-    public Date getDateEvent() {
+    public String getDateEvent() {
         return dateEvent;
     }
 
@@ -152,7 +160,7 @@ public class Evenement {
      * Modifie la date de l'événement
      * @param dateEvent Nouvelle date de l'événement
      */
-    public void setDateEvent(Date dateEvent) {
+    public void setDateEvent(String dateEvent) {
         this.dateEvent = dateEvent;
     }
 
@@ -160,7 +168,7 @@ public class Evenement {
      * Retourne un utilisateur
      * @return Un utilisateur
      */
-    public Utilisateur getMonUtilisateur() {
+    public int getMonUtilisateur() {
         return monUtilisateur;
     }
 
@@ -168,7 +176,7 @@ public class Evenement {
      * Modifie l'utilisateur
      * @param monUtilisateur Nouvel utilisateur
      */
-    public void setMonUtilisateur(Utilisateur monUtilisateur) {
+    public void setMonUtilisateur(int monUtilisateur) {
         this.monUtilisateur = monUtilisateur;
     }
 }
