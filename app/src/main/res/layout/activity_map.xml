@@ -19,7 +19,7 @@
             android:layout_width="80dp"
             android:layout_height="50dp"
             android:layout_weight="0"
-            android:background="@color/white"
+            android:background="@color/transparant"
             android:contentDescription="@string/logo_de_l_application"
             android:src="@drawable/ic_launcher_foreground" />
 
@@ -473,7 +473,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/transparant"
             android:contentDescription="@string/todo"
             android:src="@drawable/icons8_accueil_vide___" />
 
@@ -482,7 +482,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/transparant"
             android:contentDescription="@string/todo"
             android:src="@drawable/icons8_map_rempli___" />
 
@@ -491,7 +491,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/transparant"
             android:contentDescription="@string/todo"
             android:src="@drawable/icons8_add_new_vide___" />
 
@@ -500,7 +500,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/transparant"
             android:contentDescription="@string/todo"
             android:src="@drawable/icons8_month_vide___" />
 
@@ -509,7 +509,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/transparant"
             android:contentDescription="@string/todo"
             android:src="@drawable/icons8_account_vide___" />
     </LinearLayout>

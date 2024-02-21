@@ -5,9 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -98,7 +101,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     /**
      * Création d'un déchet instantané pour la suppression d'un déchet référence
      */
-    private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
 
     /**
      * Récuperer les imformations du dernier point créé afin de créer un événement
@@ -138,10 +140,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Button boutonSignaler;
         ImageButton boutonEvent;
         ImageButton boutonHome;
+        ImageButton boutonMap;
+        ImageButton boutonAddPost;
         ImageButton boutonLogo;
+        ImageButton boutonProfil;
+        ImageButton boutonExit;
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
@@ -151,9 +156,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ScrollView layoutPopup = findViewById(R.id.popup);
         layoutMap.setVisibility(View.VISIBLE);
         layoutPopup.setVisibility(View.GONE);
-
-        // Chargement des données de déchets récupérées dasn le base de données
-        getAllZoneDechet(listeDechetsInit::addAll);
 
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
@@ -190,7 +192,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             afficherPopup();
         });
 
+        boutonProfil=findViewById(R.id.imageButtonProfile);
+        boutonProfil.setOnClickListener(v -> {
+            Intent intentProfile = new Intent(MapActivity.this, ProfilActivity.class);
+            startActivity(intentProfile);
+        });
+
         askAuthorisation();
+
+
+        boutonMap = (ImageButton) findViewById(R.id.imageButtonMap);
+        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
+        boutonExit = (ImageButton) findViewById(R.id.dechetClose);
+
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonProfil.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            boutonExit.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+        } else {
+            boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonMap.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonAddPost.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonEvent.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonProfil.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+            boutonExit.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_IN);
+        }
     }
 
     /**
@@ -236,9 +266,70 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             boutonPosition.setImageResource(R.drawable.position_clicked);
             // La permission a été accordée, lance le processus asynchrone pour obtenir la position actuelle de l'appareil
             handler.post(runnableCode);
+            handlerMap.post(runnableMap);
+            handlerMap.post(runnableDechet);
         }
     }
 
+    private final Handler handlerMap = new Handler();
+
+    private final Runnable runnableMap = new Runnable() {
+        @Override
+        public void run() {
+            // Mets à jour la map pour les déchets
+            updateMap();
+            handler.postDelayed(this, 5000);
+        }
+    };
+
+    public Runnable getRunnableMap() {
+        return runnableMap;
+    }
+
+    private void updateMap() {
+        if (!listeDechets.isEmpty()) {
+            googleMap.clear();
+            // Ajouter des marqueurs pour chaque déchet dans la liste
+            for (Dechet dechet : listeDechets) {
+                LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
+                googleMap.addMarker(new MarkerOptions().position(position).title(dechet.toString()));
+            }
+            // Ajouter un listener de clic sur les marqueurs
+            googleMap.setOnMarkerClickListener(marker -> {
+                // Récupérer le déchet associé au marqueur
+                Dechet dechetSelectionne = trouverDechetParToString(marker.getTitle());
+                // Récupérez les informations du marqueur à partir de la balise
+                Dechet markerInfo = (Dechet) marker.getTag();
+
+                // Vérifiez si la balise contient des informations
+                if (markerInfo != null) {
+                    // Utilisez les informations du marqueur comme nécessaire
+                    Log.d("Marker Clicked", "ID: " + markerInfo.getId() + ", Latitude: " + markerInfo.getLatitude() +
+                            ", Longitude: " + markerInfo.getLongitude() + ", Description: " + markerInfo.getDescription());
+                }
+
+                // Afficher une boîte de dialogue ou exécuter l'action appropriée
+                if (dechetSelectionne != null) {
+                    // Afficher les détails du déchet
+                    afficherDetailsDechet(dechetSelectionne);
+                }
+
+                return true;
+            });
+        }
+    }
+
+    private final Runnable runnableDechet = new Runnable() {
+        @Override
+        public void run() {
+            reinitialiseListeDechets();
+            handler.postDelayed(this, 60000);
+        }
+    };
+    private void reinitialiseListeDechets(){
+        listeDechets.clear();
+        getAllZoneDechet(listeDechets::addAll);
+    }
 
     /**
      * Gestionnaire utilisé pour programmer et exécuter des actions différées dans le thread de l'interface utilisateur.
@@ -361,8 +452,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        listeDechets.addAll(listeDechetsInit);
-
         // Ajouter des marqueurs pour chaque déchet dans la liste
         for (Dechet dechet : listeDechets) {
             LatLng position = new LatLng(dechet.getLatitude(), dechet.getLongitude());
@@ -417,8 +506,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void supprimerDechet(Dechet dechet) {
         listeDechets.remove(dechet);
         deleteZoneDechet(dechet);
-        // Mettez à jour l'affichage sur la carte
-        afficherMarqueursSurCarte();
+        updateMap();
     }
 
 
@@ -458,17 +546,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
-                .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
-                        + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
-                        + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
-                        + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
-                .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
-                    // Appeler la méthode pour supprimer le déchet après confirmation
-                    supprimerDechet(dechet);
-                    afficherToast(getString(R.string.dechetDelete), R.color.red);
-                })
-                .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                .show();
+            .setMessage(getString(R.string.dechetID) + getString(R.string.deuxPoints) + dechet.getId() + "\n"
+                    + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + dechet.getLatitude() + "\n"
+                    + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
+                    + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
+            .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
+                // Appeler la méthode pour supprimer le déchet après confirmation
+                supprimerDechet(dechet);
+                afficherToast(getString(R.string.dechetDelete), R.color.red);
+            })
+            .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+            .show();
     }
 
     /**
@@ -732,7 +820,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private void onValiderClick() {
         String tailleSelectionnee = popupParameters.get("Taille");
-        String detailsSelectionnes = popupParameters.get("Details") + ", " + popupParameters.get("Details2");
+        String detailsSelectionnes;
+        if(popupParameters.get("Détails").isEmpty() && popupParameters.get("Détails2").isEmpty()){
+            detailsSelectionnes = null;
+        }else{
+            detailsSelectionnes = popupParameters.get("Détails") + ", " + popupParameters.get("Détails2");
+        }
+
         String commentaire = popupParameters.get("Commentaire");
         String position = getPosition();
 
@@ -740,14 +834,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
+        Dechet nouveauDechet = new Dechet(lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
         addZoneDechet(nouveauDechet);
         afficherMarqueursSurCarte();
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
-        afficherAlerte(getString(R.string.dechetWarning));
+        if(!(detailsSelectionnes==null)){
+            afficherAlerte(getString(R.string.dechetWarning));
+        }
         popupParameters = null;
     }
 
