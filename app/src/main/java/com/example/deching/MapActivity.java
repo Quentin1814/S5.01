@@ -207,7 +207,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
         boutonMap = (ImageButton) findViewById(R.id.imageButtonMap);
-        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
         boutonExit = (ImageButton) findViewById(R.id.dechetClose);
 
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;

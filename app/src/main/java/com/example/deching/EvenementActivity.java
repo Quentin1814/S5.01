@@ -30,11 +30,6 @@ import java.util.List;
  */
 public class EvenementActivity extends AppCompatActivity {
     /**
-     * Logo de l'application
-     */
-    private ImageButton boutonLogo;
-
-    /**
      * Bouton de la page d'accueil
      */
     private ImageButton boutonHome;
@@ -92,6 +87,7 @@ public class EvenementActivity extends AppCompatActivity {
             Intent intentProfil = new Intent(EvenementActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
         });
+        boutonEvent= (ImageButton) findViewById(R.id.imageButtonEvent);
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
             boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
