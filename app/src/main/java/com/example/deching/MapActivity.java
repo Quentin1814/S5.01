@@ -39,6 +39,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
+import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -56,11 +57,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Calendar;
 
 /**
  * Classe représentant la page de la carte
@@ -98,15 +99,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private final List<Dechet> listeDechets = new ArrayList<>();
 
-    private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
+    /**
+     * Création d'un déchet instantané pour la suppression d'un déchet référence
+     */
 
+    /**
+     * Récuperer les imformations du dernier point créé afin de créer un événement
+     */
+    protected static final List<Evenement> listeEvenements = new ArrayList<>();
+
+    /**
+     * Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
+     */
+    private GoogleMap googleMap;
+
+    /**
+     * Code de requête pour démarrer l'activité de la caméra.
+     * Cette constante est utilisée pour identifier la demande de résultat lorsque l'activité de la caméra est terminée.
+     */
     private static final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
-    // Créer un LinearLayout pour centrer l'ImageView
 
-
+    /**
+     * Gestionnaire pour les préférences partagées de l'application.
+     * Permet de stocker et récupérer des données de manière persistante à travers les sessions de l'application.
+     */
     private SharedPreferences sharedPreferences;
+
+    /**
+     * Bouton permettant d'accéder à la position actuelle de l'appareil.
+     * En cliquant sur ce bouton, l'utilisateur peut obtenir des informations sur sa position géographique.
+     */
     ImageButton boutonPosition;
 
+    /**
+     * Méthode appelée lors de la création de l'activité.
+     *
+     * @param savedInstanceState données permettant de reconstruire l'activité lorsqu'elle est recréée, si null alors aucune donnée n'est disponible.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Button boutonSignaler;
@@ -117,8 +146,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ImageButton boutonLogo;
         ImageButton boutonProfil;
         ImageButton boutonExit;
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
@@ -128,7 +157,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         ScrollView layoutPopup = findViewById(R.id.popup);
         layoutMap.setVisibility(View.VISIBLE);
         layoutPopup.setVisibility(View.GONE);
-
 
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
@@ -153,12 +181,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intentAddPost = new Intent(MapActivity.this, AddPostActivity.class);
             startActivity(intentAddPost);
         });
-        boutonProfil=findViewById(R.id.imageButtonProfile);
-        boutonProfil.setOnClickListener(v -> {
-            Intent intentProfile = new Intent(MapActivity.this, ProfilActivity.class);
-            startActivity(intentProfile);
-        });
-
         // Chargement de la carte dans le fragment prévu à cet effet
         SupportMapFragment fragmentMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.layoutMap);
         try {
@@ -175,8 +197,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             afficherPopup();
         });
 
+        boutonProfil=findViewById(R.id.imageButtonProfile);
+        boutonProfil.setOnClickListener(v -> {
+            Intent intentProfile = new Intent(MapActivity.this, ProfilActivity.class);
+            startActivity(intentProfile);
+        });
+
         askAuthorisation();
+
+
         boutonMap = (ImageButton) findViewById(R.id.imageButtonMap);
+        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
         boutonExit = (ImageButton) findViewById(R.id.dechetClose);
 
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -517,7 +548,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Méthode qui permet l'affichage des details du dechet selectionne
      * @param dechet
      */
-    // affichage des details du dechet selectionne
     private void afficherDetailsDechet(Dechet dechet) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Détails du Déchet")
@@ -526,6 +556,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + dechet.getLongitude() + "\n"
                         + getString(R.string.dechetDescription) + getString(R.string.deuxPoints) + dechet.getDescription())
                 .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
+
                     // Afficher une boîte de dialogue de confirmation avant de supprimer le déchet
                     new AlertDialog.Builder(this)
                             .setTitle(getString(R.string.ok))
@@ -541,6 +572,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
     /**
      * Méthode appelée lorsque l'activité reçoit le résultat d'une activité de caméra lancée pour prendre une photo.
      * Affiche la photo capturée dans une image view et effectue des opérations de traitement sur celle-ci.
@@ -800,10 +832,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     /**
      * Méthode pour gérer le clic sur le bouton "Valider"
      */
-    // Ajouter la méthode pour gérer le clic sur le bouton "Valider"
     private void onValiderClick() {
         String tailleSelectionnee = popupParameters.get("Taille");
-        String detailsSelectionnes = popupParameters.get("Details") + ", " + popupParameters.get("Details2");
+        String detailsSelectionnes;
+        if(popupParameters.get("Détails").isEmpty() && popupParameters.get("Détails2").isEmpty()){
+            detailsSelectionnes = null;
+        }else{
+            detailsSelectionnes = popupParameters.get("Détails") + ", " + popupParameters.get("Détails2");
+        }
+
         String commentaire = popupParameters.get("Commentaire");
         String position = getPosition();
 
@@ -811,15 +848,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("Valider", "Taille: " + tailleSelectionnee + ", Détails: " + detailsSelectionnes + ", Position: " + position + ", Commentaire: " + commentaire);
 
         // Ajouter le nouveau déchet à la liste
-        Dechet nouveauDechet = new Dechet( lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
+        Dechet nouveauDechet = new Dechet(lastClickedLatitude, lastClickedLongitude, tailleSelectionnee, commentaire);
         listeDechets.add(nouveauDechet);
-        creerEvenement(nouveauDechet);
         addZoneDechet(nouveauDechet);
+        creerEvenement(nouveauDechet);
         afficherMarqueursSurCarte();
         // Afficher un Toast avec les informations du déchet ajouté
         afficherToast(getString(R.string.dechetAdd) + getString(R.string.returnLine) + getString(R.string.dechetLatitude) + getString(R.string.deuxPoints) + lastClickedLatitude + getString(R.string.returnLine) + getString(R.string.dechetLongitude) + getString(R.string.deuxPoints) + lastClickedLongitude, R.color.green);
         // Vérifier les détails sélectionnés et afficher une boîte de dialogue d'alerte appropriée
-        afficherAlerte(getString(R.string.dechetWarning));
+        if(!(detailsSelectionnes==null)){
+            afficherAlerte(getString(R.string.dechetWarning));
+        }
         popupParameters = null;
     }
     // creation d'un evenement quand on clique sur le bouton valider
@@ -843,8 +882,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             eventData.put("dateEvent", year+ "-"+month+"-"+day);
             eventData.put("photo", null);
             eventData.put("idUtilisateur",120);
-        // Envoyer les données à l'API via une requête POST avec Volley
-        String url = "https://deching.alwaysdata.net/actions/Evenement.php";
+            // Envoyer les données à l'API via une requête POST avec Volley
+            String url = "https://deching.alwaysdata.net/actions/Evenement.php";
             JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url, eventData, reponse -> {
             },
                     error -> {
@@ -857,7 +896,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
     }
-
     /**
      * Met en surbrillance un bouton spécifié dans une liste de boutons en ajustant ses couleurs d'arrière-plan.
      *
