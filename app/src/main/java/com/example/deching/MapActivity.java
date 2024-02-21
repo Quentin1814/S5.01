@@ -39,7 +39,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
-import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -93,7 +92,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Stocker les paramètres du popup
      */
     private Map<String, String> popupParameters = new HashMap<>();
-    //creation d'un dechet instantane pour la suppression d'un dechet reference
 
     /**
      * Création d'une liste de déchet instantané pour la suppression d'un déchet référence

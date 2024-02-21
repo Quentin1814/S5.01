@@ -25,7 +25,9 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.List;
-
+/**
+ * Classe représentant la page des événements
+ */
 public class EvenementActivity extends AppCompatActivity {
     /**
      * Logo de l'application
