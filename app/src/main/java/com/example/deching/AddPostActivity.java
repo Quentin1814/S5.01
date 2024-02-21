@@ -73,7 +73,7 @@ public class AddPostActivity extends AppCompatActivity {
             Intent intentProfile = new Intent(AddPostActivity.this, ProfilActivity.class);
             startActivity(intentProfile);
         });
-
+        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
             boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);

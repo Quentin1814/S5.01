@@ -106,7 +106,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     /**
      * Récuperer les imformations du dernier point créé afin de créer un événement
      */
-    protected static final List<Evenement> listeEvenements = new ArrayList<>();
+    private final List<Evenement> listeEvenements = new ArrayList<>();
 
     /**
      * Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
@@ -207,7 +207,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
         boutonMap = (ImageButton) findViewById(R.id.imageButtonMap);
-        boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
         boutonExit = (ImageButton) findViewById(R.id.dechetClose);
 
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -868,14 +867,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH)+1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int i = 1;
         // Créer un objet JSON avec les données de l'événement
         try {
             RequestQueue queue;
             queue = Volley.newRequestQueue(this);
             queue.start();
             JSONObject eventData = new JSONObject();
-            int i=1;
-            eventData.put("nom", "Recolting "+ i);
+            eventData.put("nom", "Recolting ");
             eventData.put("description", nouveauDechet.getDescription() + "," + nouveauDechet.getTaille());
             eventData.put("nbParticipantTotal",0);
             eventData.put("lieu", nouveauDechet.getLatitude()+"/"+nouveauDechet.getLongitude());
@@ -890,7 +889,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }) {
             };
             queue.add(jsonRequest);
-            i++;
         } catch (Exception exception){
             Log.d("erreurHttp", Objects.requireNonNull(exception.getMessage()));
         }
