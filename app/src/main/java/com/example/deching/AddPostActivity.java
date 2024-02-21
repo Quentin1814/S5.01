@@ -38,9 +38,9 @@ public class AddPostActivity extends AppCompatActivity {
     private ImageButton boutonProfile;
 
     /**
-     * Bouton de message
+     * Bouton du logo
      */
-    private ImageButton boutonMessage;
+    private ImageButton boutonLogo;
 
     /**
      * Méthode appelée lors de la création de l'activité.
@@ -74,6 +74,11 @@ public class AddPostActivity extends AppCompatActivity {
             startActivity(intentProfile);
         });
         boutonAddPost = (ImageButton) findViewById(R.id.imageButtonAddPost);
+        boutonLogo = findViewById(R.id.imageButtonLogo);
+        boutonLogo.setOnClickListener(v -> {
+            Intent intentLogo = new Intent(AddPostActivity.this, HomePageActivity.class);
+            startActivity(intentLogo);
+        });
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES || AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
             boutonHome.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);

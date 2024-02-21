@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Déching</string>
     <string name="nom_app">Déching</string>
-    <string name="en_construction_homePage">Bienvenue chez Déching!\n Cette page est en construction.\n Elle contiendra les posts ajoutés depuis la page post.</string>
+
     <string name="MAPS_API_KEY">AIzaSyBXXc6qaSWh7PQE9pXkLeVfQv8mCJaXTnc</string>
     <string name="todo">TODO</string>
     <string name="logo_de_l_application">Logo de l\'application</string>
@@ -52,6 +52,8 @@
     <string name="dechetLongitude">Longitude</string>
     <string name="dechetDescription">Description</string>
 
+    <string name="dechetDescriptionNonDetaille">Non détaillée</string>
+
 
     // Camera Layout
 
@@ -64,6 +66,14 @@
     // HomePage Layout
 
     // HomePage Activity
+
+    <string name="en_construction_homePage">Bienvenue chez Déching!\n Cette page est en construction.\n Elle contiendra les posts ajoutés depuis la page post.</string>
+
+    // AddPost Layout
+
+    // AddPost Activity
+
+    <string name="en_construction_addPost">Bienvenue chez Déching!\n Cette page est en construction.\n Elle permettra l\'ajout des posts.</string>
 
     // Evenement Layout
 
@@ -101,7 +111,7 @@
         \n \- ROBERT Quentin
         \n
         \nCe projet a été commandité par l\'association Déching et avait pour enseignant-tuteur MARQUESUZAÀ Christophe.</string>
-  
+
     <string name="versionApp">Version de l\'application</string>
 
 

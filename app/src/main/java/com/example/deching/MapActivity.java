@@ -39,7 +39,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.deching.Modele.Modele.Dechet;
-import com.example.deching.Modele.Modele.Evenement;
 import com.example.deching.utilitaire.VolleyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -98,15 +97,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * Création d'une liste de déchet instantané pour la suppression d'un déchet référence
      */
     private final List<Dechet> listeDechets = new ArrayList<>();
-
-    /**
-     * Création d'un déchet instantané pour la suppression d'un déchet référence
-     */
-
-    /**
-     * Récuperer les imformations du dernier point créé afin de créer un événement
-     */
-    private final List<Evenement> listeEvenements = new ArrayList<>();
 
     /**
      * Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
@@ -286,10 +276,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     };
 
-    public Runnable getRunnableMap() {
-        return runnableMap;
-    }
-
     private void updateMap() {
         if (!listeDechets.isEmpty()) {
             googleMap.clear();
@@ -442,7 +428,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 afficherPopup(lastClickedLatitude, lastClickedLongitude);
             } else {
                 Marker newDechet = googleMap.addMarker(new MarkerOptions().position(latLng));
-                Dechet unDechet = new Dechet(  latLng.latitude, latLng.longitude,"petit" ,"Description");
+                Dechet unDechet = new Dechet(  latLng.latitude, latLng.longitude, getResources().getString(R.string.dechetSizeSmall) , getResources().getString(R.string.dechetDescriptionNonDetaille));
+                listeDechets.add(unDechet);
                 // Ajoutez un marqueur à l'emplacement cliqué
                 googleMap.addMarker(new MarkerOptions().position(latLng));
                 // Mettre à jour les variables globales avec les dernières coordonnées
@@ -867,7 +854,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH)+1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int i = 1;
         // Créer un objet JSON avec les données de l'événement
         try {
             RequestQueue queue;

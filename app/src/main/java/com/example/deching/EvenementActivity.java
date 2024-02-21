@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageButton;
 
 import android.widget.TextView;
@@ -55,6 +54,11 @@ public class EvenementActivity extends AppCompatActivity {
      */
     private ImageButton boutonProfile;
 
+    /**
+     * Bouton du logo
+     */
+    private ImageButton boutonLogo;
+
 
     /**
      * Méthode appelée lors de la création de l'activité.
@@ -87,6 +91,11 @@ public class EvenementActivity extends AppCompatActivity {
         boutonProfile.setOnClickListener(v -> {
             Intent intentProfil = new Intent(EvenementActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
+        });
+        boutonLogo = findViewById(R.id.imageButtonLogo);
+        boutonLogo.setOnClickListener(v -> {
+            Intent intentLogo = new Intent(EvenementActivity.this, HomePageActivity.class);
+            startActivity(intentLogo);
         });
 
         // Récupérer les événements depuis l'API
