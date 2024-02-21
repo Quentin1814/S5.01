@@ -98,7 +98,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private final List<Dechet> listeDechets = new ArrayList<>();
 
-    private final ArrayList<Dechet> listeDechetsInit = new ArrayList<>();
     private GoogleMap googleMap;  // Déplacez la déclaration ici pour qu'elle soit accessible à toutes les méthodes
 
     private static final int CAMERA_ACTIVITY_REQUEST_CODE = 100;
@@ -130,8 +129,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         layoutMap.setVisibility(View.VISIBLE);
         layoutPopup.setVisibility(View.GONE);
 
-        // Chargement des données de déchets récupérées dasn le base de données
-        getAllZoneDechet(c -> listeDechetsInit.addAll(c));
 
         boutonHome = (ImageButton) findViewById(R.id.imageButtonHome);
         boutonHome.setOnClickListener(v -> {
